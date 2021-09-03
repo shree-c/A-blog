@@ -1,3 +1,5 @@
+//bringing in the database client for CRUD operations
+const userCollection = require('../db').collection('cusers');
 //we are using validator npm package to validate user input data
 const validator = require('validator')
 //what defines a user?
@@ -46,6 +48,9 @@ User.prototype.register = function () {
     this.cleanUp()
     //validating user data
     this.validate();
+    // adding data to database if there are no validation errors
+    if (!this.errors.length)
+        userCollection.insertOne(this.data);
 }
 
 module.exports = User

@@ -10,6 +10,6 @@ app.set('view engine', 'ejs')
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 app.use(router)
-app.listen(5000, () => {
-  console.log('listening at port: 5000')
-})
+
+//we are exporting app so that to start listining after we are connected to database
+module.exports = app
