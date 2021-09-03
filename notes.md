@@ -1,8 +1,8 @@
 ## I am going to write notes related to the development of this app here.
 ### Table of contents
 - [database](#database)
-- [usermodelling](#user model)
-- [dotenv](#environment variables)
+- [usermodelling](#user-model)
+- [dotenv](#environment-variables)
 
 #### database
 1. we created a seperate database file and made at as a main file which starts first and imported express app object after connecting to database.
