@@ -16,8 +16,13 @@ exports.register = function (req, res) {
         res.send('thanks for registering')
 }
 
-exports.login = function () {
-
+exports.login = async function (req, res) {
+    let user = new User(req.body);
+    user.login().then((value) => {
+        res.send(value);
+    }).catch((e) => {
+        res.send(e);
+    })
 }
 
 exports.logout = function () {

@@ -11,17 +11,17 @@ const User = function (data) {
 
 //function to make sure the user has submitted only strings
 User.prototype.cleanUp = function () {
-    if (typeof(this.data.username) != 'string')
+    if (typeof (this.data.username) != 'string')
         this.data.username = '';
-    if (typeof(this.data.email) != 'string')
+    if (typeof (this.data.email) != 'string')
         this.data.email = '';
-    if (typeof(this.data.password) != 'string')
+    if (typeof (this.data.password) != 'string')
         this.data.password = '';
     //get rid of any other properties other than the above three
     this.data = {
-        username : this.data.username.trim().toLowerCase(),
-        password : this.data.password,
-        email : this.data.email.trim().toLowerCase()
+        username: this.data.username.trim().toLowerCase(),
+        password: this.data.password,
+        email: this.data.email.trim().toLowerCase()
     }
 }
 
@@ -42,7 +42,7 @@ User.prototype.validate = function () {
     if (this.data.username.length < 3 || this.data.password.length > 20)
         this.errors.push('the username length should lie between 3 to 20!');
 }
-
+//function for handeling register
 User.prototype.register = function () {
     //making sure that the user doesn't send anything other than a string
     this.cleanUp()
@@ -53,4 +53,20 @@ User.prototype.register = function () {
         userCollection.insertOne(this.data);
 }
 
+//function for handeling login
+User.prototype.login = function (callback) {
+    //we are querying the database to check for username and password
+    //since querying is an async operation we are returning a promise
+    return new Promise((resolve, reject) => {
+        this.cleanUp();
+        userCollection.findOne({ username: this.data.username }).then((attemptedUser) => {
+            if (attemptedUser && attemptedUser.password == this.data.password)
+                resolve('correct creds')
+            else
+                reject('incorrect username/password')
+        }).catch((err) => {
+            reject('please try again later');
+        })
+    })
+}
 module.exports = User
