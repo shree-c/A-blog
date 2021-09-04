@@ -3,6 +3,7 @@
 - [database](#database)
 - [usermodelling](#user-model)
 - [dotenv](#environment-variables)
+- [sessions](#sessions)
 
 #### database
 1. we created a seperate database file and made at as a main file which starts first and imported express app object after connecting to database.
@@ -10,9 +11,20 @@
 
 
 #### user model
+1. we used **bcryptjs** to hash passwords
 
 
 #### environment variables
 1. we made a file called .env and we store key value data in it.
 2. we can import those sotred key values in to whichever file we need using a package called dotenv.
 3. we need to call dotenv.config
+
+#### sessions
+1. we want to remember that the user has logged in once and show him his dashboard instead of login page when he opens our app
+2. but http requests are stateless, so, sessions come into play here.
+3. we are using express-sessions package
+4. we would leverage session at the login function
+5. each time a person logins unique session data is sent and it is stored on the server
+6. the server in turn stores cookie in the browser and the cookie has the age
+7. the browser sends cookie with the each request made to the base url
+8. based on the cookie sent the server responds

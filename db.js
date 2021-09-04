@@ -10,8 +10,9 @@ async function run() {
     try {
         //connecting and exporting the database client
         await client.connect();
-        const database = client.db('complexapp');
-        module.exports = database;
+        const database = client;
+        // only exporting client here
+        module.exports = client;
         const app = require('./app');
         app.listen(process.env.PORT, ()=>{
             console.log('listining at 5000');

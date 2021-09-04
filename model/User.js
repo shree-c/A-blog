@@ -1,5 +1,7 @@
+//bcrypt for hashing passwords
+const bcrypt = require('bcryptjs')
 //bringing in the database client for CRUD operations
-const userCollection = require('../db').collection('cusers');
+const userCollection = require('../db').db('complexapp').collection('cusers');
 //we are using validator npm package to validate user input data
 const validator = require('validator')
 //what defines a user?
@@ -49,18 +51,23 @@ User.prototype.register = function () {
     //validating user data
     this.validate();
     // adding data to database if there are no validation errors
-    if (!this.errors.length)
+    if (!this.errors.length) {
+        //hashing the password
+        const salt = bcrypt.genSaltSync(10);
+        this.data.password = bcrypt.hashSync(this.data.password, salt);
         userCollection.insertOne(this.data);
+    }
 }
 
 //function for handeling login
-User.prototype.login = function (callback) {
+User.prototype.login = function () {
     //we are querying the database to check for username and password
     //since querying is an async operation we are returning a promise
     return new Promise((resolve, reject) => {
         this.cleanUp();
         userCollection.findOne({ username: this.data.username }).then((attemptedUser) => {
-            if (attemptedUser && attemptedUser.password == this.data.password)
+            //comparing the hashed password
+            if (attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password))
                 resolve('correct creds')
             else
                 reject('incorrect username/password')
