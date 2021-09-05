@@ -28,52 +28,64 @@ User.prototype.cleanUp = function () {
 }
 
 //function to validate user data
-User.prototype.validate = function () {
+User.prototype.validate = async function () {
     if (!this.data.username)
         this.errors.push('empty username');
+    if (this.data.username != '' && this.data.username.length <= 3 || this.data.username.length > 20)
+        this.errors.push('the username length should lie between 3 to 20!');
     if (this.data.username != '' && !validator.isAlphanumeric(this.data.username))
         this.errors.push('the username should only contain alphanumeric characters');
-    if (!validator.isEmail(this.data.email))
+    if (this.data.email != '' && !validator.isEmail(this.data.email))
         this.errors.push('not a valid email address');
     if (!this.data.password)
         this.errors.push('empty password');
     if (!this.data.email)
         this.errors.push('empty email');
-    if (this.data.password.length < 6 || this.data.password.length > 30)
-        this.errors.push('the password length should lie between 6 to 30!');
-    if (this.data.username.length < 3 || this.data.password.length > 20)
-        this.errors.push('the username length should lie between 3 to 20!');
+    if (this.data.password != '' && this.data.password.length <= 3 || this.data.password.length > 20)
+        this.errors.push('the password length should lie between 3 to 20!');
+    //only if the username is valid we check for whether it already taken
+    if (this.data.username.length >= 3 && this.data.username.length <= 20 && validator.isAlphanumeric(this.data.username)) {
+        let usernameExists = await userCollection.findOne({ username: this.data.username });
+        if (usernameExists) {
+            this.errors.push('username already taken');
+        }
+    }
+    //only if the email is valid we check for whether it already taken
+    if (validator.isEmail(this.data.email)) {
+        let emailExists = await userCollection.findOne({ email: this.data.email });
+        if (emailExists) {
+            this.errors.push('email already taken');
+        }
+    }
 }
 //function for handeling register
-User.prototype.register = function () {
+User.prototype.register = async function () {
     //making sure that the user doesn't send anything other than a string
     this.cleanUp()
     //validating user data
-    this.validate();
+    await this.validate();
     // adding data to database if there are no validation errors
     if (!this.errors.length) {
         //hashing the password
         const salt = bcrypt.genSaltSync(10);
         this.data.password = bcrypt.hashSync(this.data.password, salt);
-        userCollection.insertOne(this.data);
+        await userCollection.insertOne(this.data);
     }
 }
 
 //function for handeling login
-User.prototype.login = function () {
+User.prototype.login = async function () {
     //we are querying the database to check for username and password
     //since querying is an async operation we are returning a promise
-    return new Promise((resolve, reject) => {
-        this.cleanUp();
-        userCollection.findOne({ username: this.data.username }).then((attemptedUser) => {
-            //comparing the hashed password
-            if (attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password))
-                resolve('correct creds')
-            else
-                reject('incorrect username/password')
-        }).catch((err) => {
-            reject('please try again later');
-        })
-    })
+    this.cleanUp();
+    try {
+        const attemptedUser = await userCollection.findOne({ username: this.data.username });
+        if (attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password))
+            return;
+        else
+            throw new Error('incorrect username/password');
+    } catch (err) {
+        throw err;
+    }
 }
 module.exports = User

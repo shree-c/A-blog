@@ -8,24 +8,25 @@ exports.home = function (req, res) {
         res.render('home-dashboard', { username: req.session.user.username });
     } else {
         //rendering the ejs file and display flash messages if there are any
-        res.render('home-guest', {errors: req.flash('errors')});
+        res.render('home-guest', { errors: req.flash('errors'), regErrors: req.flash('regErrors') });
     }
 }
 //for handeling new user registeration
-exports.register = function (req, res) {
+exports.register = async function (req, res) {
     //we are sending the entered data to User model for user objec creation
     const user = new User(req.body);
     //register function calls validate function on the prototype of User to validate user data
-    user.register();
-    if (user.errors.length)
-        res.send(`${user.errors}`);
-    else
-        res.send('thanks for registering')
-}
-//for handeling login
-exports.login = async function (req, res) {
-    let user = new User(req.body);
-    user.login().then((value) => {
+    await user.register();
+    if (user.errors.length) {
+        //adding flash messages if there are any errors
+        user.errors.forEach((message) => {
+            req.flash('regErrors', message);
+        });
+        req.session.save(() => {
+            res.redirect('/');
+        })
+    }
+    else {
         //storing session data on request object
         req.session.user = {
             username: req.body.username,
@@ -35,15 +36,31 @@ exports.login = async function (req, res) {
         req.session.save(() => {
             res.redirect('/');
         });
-    }).catch((e) => {
+    }
+}
+//for handeling login
+exports.login = async function (req, res) {
+    let user = new User(req.body);
+    try {
+        await user.login();
+        //storing session data on request object
+        req.session.user = {
+            username: req.body.username,
+            favcolor: "red"
+        }
+        //since we are creating the new session it is an async action
+        req.session.save(() => {
+            res.redirect('/');
+        });
+    } catch (e) {
         //if there are any errors we want to show error messages on that page only so we are using flash package
         //flash package makes use of sessions
-        req.flash('errors', e);
+        req.flash('errors', e.message);
         //because async operation
         req.session.save(() => {
             res.redirect('/');
         });
-    })
+    }
 }
 //for handeling logout
 exports.logout = function (req, res) {
