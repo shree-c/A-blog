@@ -8,7 +8,9 @@ const router = require('./router');
 const session = require('express-session');
 //for storing session data in database
 const mongoStore = require('connect-mongo');
-
+//pulling in flash package
+const flash = require('connect-flash');
+//creating express app
 const app = express();
 
 //session config
@@ -28,6 +30,8 @@ const sessionOpts = session({
 });
 //using session options
 app.use(sessionOpts);
+//using flash middleware
+app.use(flash());
 // for files accessible via their filenames to anybody
 app.use(express.static('public'));
 // setting up template engine

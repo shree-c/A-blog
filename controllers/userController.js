@@ -4,12 +4,14 @@ const User = require('../model/User')
 exports.home = function (req, res) {
     //if there is session data we render dashboard else login page
     if (req.session.user) {
-        res.send('welcome to dashboard');
+        //puling in username from session data
+        res.render('home-dashboard', { username: req.session.user.username });
     } else {
-    //rendering the ejs file
-    res.render('home-guest');
+        //rendering the ejs file and display flash messages if there are any
+        res.render('home-guest', {errors: req.flash('errors')});
     }
 }
+//for handeling new user registeration
 exports.register = function (req, res) {
     //we are sending the entered data to User model for user objec creation
     const user = new User(req.body);
@@ -20,7 +22,7 @@ exports.register = function (req, res) {
     else
         res.send('thanks for registering')
 }
-
+//for handeling login
 exports.login = async function (req, res) {
     let user = new User(req.body);
     user.login().then((value) => {
@@ -29,12 +31,25 @@ exports.login = async function (req, res) {
             username: req.body.username,
             favcolor: "red"
         }
-        res.send(value);
+        //since we are creating the new session it is an async action
+        req.session.save(() => {
+            res.redirect('/');
+        });
     }).catch((e) => {
-        res.send(e);
+        //if there are any errors we want to show error messages on that page only so we are using flash package
+        //flash package makes use of sessions
+        req.flash('errors', e);
+        //because async operation
+        req.session.save(() => {
+            res.redirect('/');
+        });
     })
 }
-
-exports.logout = function () {
-
+//for handeling logout
+exports.logout = function (req, res) {
+    //destroying session cookie
+    req.session.destroy(() => {
+        //we are doing this because the home page will be different depending of we have a sesion or not
+        res.redirect('/');
+    });
 }

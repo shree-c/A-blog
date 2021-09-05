@@ -4,6 +4,7 @@
 - [usermodelling](#user-model)
 - [dotenv](#environment-variables)
 - [sessions](#sessions)
+- [flash messages](#flash)
 
 #### database
 1. we created a seperate database file and made at as a main file which starts first and imported express app object after connecting to database.
@@ -28,3 +29,8 @@
 6. the server in turn stores cookie in the browser and the cookie has the age
 7. the browser sends cookie with the each request made to the base url
 8. based on the cookie sent the server responds
+
+#### flash
+
+1. It is a way of informing users of different things like incorrect password or wrong credentials etc. we are using **connect flash** package to do that.
+2. The flash package just adds data on the session object. So again here we need to access database.
