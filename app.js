@@ -40,6 +40,11 @@ app.set('view engine', 'ejs');
 // setting up for parsing posted data
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+// setting up a local object for every ejsfile to access
+app.use((req, res, next)=>{
+    res.locals.user = req.session.user;
+    next();
+})
 app.use(router);
 
 //we are exporting app so that to start listining after we are connected to database

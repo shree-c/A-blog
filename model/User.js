@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs')
 const userCollection = require('../db').db('complexapp').collection('cusers');
 //we are using validator npm package to validate user input data
 const validator = require('validator')
+//pulling in md5 for gravatar
+const md5 = require('md5')
 //what defines a user?
 const User = function (data) {
     this.data = data;
@@ -70,6 +72,7 @@ User.prototype.register = async function () {
         const salt = bcrypt.genSaltSync(10);
         this.data.password = bcrypt.hashSync(this.data.password, salt);
         await userCollection.insertOne(this.data);
+        this.getAvatar();
     }
 }
 
@@ -80,12 +83,20 @@ User.prototype.login = async function () {
     this.cleanUp();
     try {
         const attemptedUser = await userCollection.findOne({ username: this.data.username });
-        if (attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password))
+        if (attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password)) {
+            this.data.email = attemptedUser.email;
+            this.getAvatar();
             return;
+        }
         else
             throw new Error('incorrect username/password');
     } catch (err) {
         throw err;
     }
 }
+//working on gravatar--> showing profile photo
+User.prototype.getAvatar = function () {
+    this.avatar = `https://gravatar.com/avatar/${md5(this.data.email)}?s=128`
+}
+
 module.exports = User

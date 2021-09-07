@@ -34,3 +34,8 @@
 
 1. It is a way of informing users of different things like incorrect password or wrong credentials etc. we are using **connect flash** package to do that.
 2. The flash package just adds data on the session object. So again here we need to access database.
+
+#### restricting access to routes
+* we used a function to check whether a user has the logged in using req.session.user
+* if not we flashed approprite messages and redirected user to home
+* we use this function on routes where we want to restrict

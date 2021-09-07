@@ -4,8 +4,8 @@ const User = require('../model/User')
 exports.home = function (req, res) {
     //if there is session data we render dashboard else login page
     if (req.session.user) {
-        //puling in username from session data
-        res.render('home-dashboard', { username: req.session.user.username });
+        //pulling in username from session data
+        res.render('home-dashboard');
     } else {
         //rendering the ejs file and display flash messages if there are any
         res.render('home-guest', { errors: req.flash('errors'), regErrors: req.flash('regErrors') });
@@ -30,7 +30,7 @@ exports.register = async function (req, res) {
         //storing session data on request object
         req.session.user = {
             username: req.body.username,
-            favcolor: "red"
+            avatar: user.avatar
         }
         //since we are creating the new session it is an async action
         req.session.save(() => {
@@ -46,7 +46,7 @@ exports.login = async function (req, res) {
         //storing session data on request object
         req.session.user = {
             username: req.body.username,
-            favcolor: "red"
+            avatar : user.avatar
         }
         //since we are creating the new session it is an async action
         req.session.save(() => {
@@ -70,3 +70,15 @@ exports.logout = function (req, res) {
         res.redirect('/');
     });
 }
+
+//we want to restrict certain routes to the signed in users only
+exports.mustBeLoggedIn = function (req, res, next) {
+    if (req.session.user) {
+        next();
+    } else {
+        req.flash('errors', 'you must be logged in');
+        req.session.save(()=>{
+            res.redirect('/');
+        })
+    }
+} 
