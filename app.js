@@ -1,5 +1,5 @@
 // pulling up db connection for mongo store
-const client = require('./db')
+const client = require('./db');
 // express server
 const express = require('express');
 // express router
@@ -15,7 +15,7 @@ const app = express();
 
 //session config
 const sessionOpts = session({
-    secret: "some secret",
+    secret: 'some secret',
     resave: false,
     //storing session info in database
     store: mongoStore.create({
@@ -44,7 +44,7 @@ app.use(express.json());
 app.use((req, res, next)=>{
     res.locals.user = req.session.user;
     next();
-})
+});
 app.use(router);
 
 //we are exporting app so that to start listining after we are connected to database

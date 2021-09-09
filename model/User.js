@@ -1,17 +1,17 @@
 //bcrypt for hashing passwords
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcryptjs');
 //bringing in the database client for CRUD operations
 const userCollection = require('../db').db('complexapp').collection('cusers');
 //we are using validator npm package to validate user input data
-const validator = require('validator')
+const validator = require('validator');
 //pulling in md5 for gravatar
-const md5 = require('md5')
+const md5 = require('md5');
 //what defines a user?
 const User = function (data) {
     this.data = data;
     // for managing errors
     this.errors = [];
-}
+};
 
 //function to make sure the user has submitted only strings
 User.prototype.cleanUp = function () {
@@ -26,8 +26,8 @@ User.prototype.cleanUp = function () {
         username: this.data.username.trim().toLowerCase(),
         password: this.data.password,
         email: this.data.email.trim().toLowerCase()
-    }
-}
+    };
+};
 
 //function to validate user data
 User.prototype.validate = async function () {
@@ -59,11 +59,11 @@ User.prototype.validate = async function () {
             this.errors.push('email already taken');
         }
     }
-}
+};
 //function for handeling register
 User.prototype.register = async function () {
     //making sure that the user doesn't send anything other than a string
-    this.cleanUp()
+    this.cleanUp();
     //validating user data
     await this.validate();
     // adding data to database if there are no validation errors
@@ -74,29 +74,25 @@ User.prototype.register = async function () {
         await userCollection.insertOne(this.data);
         this.getAvatar();
     }
-}
+};
 
 //function for handeling login
 User.prototype.login = async function () {
     //we are querying the database to check for username and password
     //since querying is an async operation we are returning a promise
     this.cleanUp();
-    try {
-        const attemptedUser = await userCollection.findOne({ username: this.data.username });
-        if (attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password)) {
-            this.data.email = attemptedUser.email;
-            this.getAvatar();
-            return;
-        }
-        else
-            throw new Error('incorrect username/password');
-    } catch (err) {
-        throw err;
+    const attemptedUser = await userCollection.findOne({ username: this.data.username });
+    if (attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password)) {
+        this.data.email = attemptedUser.email;
+        this.getAvatar();
+        return;
     }
-}
+    else
+        throw new Error('incorrect username/password');
+};
 //working on gravatar--> showing profile photo
 User.prototype.getAvatar = function () {
-    this.avatar = `https://gravatar.com/avatar/${md5(this.data.email)}?s=128`
-}
+    this.avatar = `https://gravatar.com/avatar/${md5(this.data.email)}?s=128`;
+};
 
-module.exports = User
+module.exports = User;
