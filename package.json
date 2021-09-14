@@ -4,7 +4,7 @@
   "description": "This is a blogging application, where user can post their views as an article. And people can follow each other.",
   "main": "index.js",
   "scripts": {
-    "watch": "nodemon db",
+    "watch": "nodemon --trace-warnings db",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "husky install"
   },

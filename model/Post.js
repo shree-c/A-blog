@@ -1,33 +1,35 @@
 const postsCollection = require('../db').db('complexapp').collection('posts');
 const { ObjectId } = require('mongodb');
-let Post = function (data, userid) {
+let Post = function (data, _id) {
+    //contains body and title
     this.data = data;
     this.errors = [];
-    this.userid = userid;
+    //for marking each post
+    this._id = _id;
 };
 Post.prototype.cleanUp = function () {
-    if (typeof(this.data.title) != 'string') {
+    if (typeof (this.data.title) != 'string') {
         this.data.title = '';
     }
-    if (typeof(this.data.body) != 'string') {
+    if (typeof (this.data.body) != 'string') {
         this.data.body = '';
     }
     this.data = {
-        body : this.data.body.trim(),
-        title: this.data.title.trim(), 
+        body: this.data.body.trim(),
+        title: this.data.title.trim(),
         createdDate: new Date(),
-        author: new ObjectId(this.data.userid),
+        author: new ObjectId(this._id),
     };
 };
 Post.prototype.validate = function () {
-    if(this.data.title == '') {
+    if (this.data.title == '') {
         this.errors.push('the title cannot be empty.');
     }
     if (this.data.body == '') {
         this.errors.push('you must provide post content.');
     }
 };
-Post.prototype.create = async function() {
+Post.prototype.create = async function () {
     this.cleanUp();
     this.validate();
     try {
@@ -37,9 +39,48 @@ Post.prototype.create = async function() {
             //this is temperory
             throw new Error(this.errors);
         }
-    } catch(e) {
+    } catch (e) {
         console.log(e);
         throw new Error('sorry try again later');
     }
 };
+Post.findSingleById = async function (postid) {
+    //finding the post by id
+    if (typeof (postid) == 'string' && ObjectId.isValid(postid)) {
+        //so we need username for displaying author of a post
+        //but that is stored in users collection
+        //Aggregation operations process data records and return computed results. Aggregation operations group values from multiple documents together, and can perform a variety of operations on the grouped data to return a single result.
+        //it takes an array of operations
+        return postsCollection.aggregate([
+            {
+                $match: {
+                    _id: new ObjectId(postid),
+                }
+            },
+            {
+                //look in users collection for document with matching field as author
+                $lookup: {
+                    from: 'cusers',
+                    localField: 'author',
+                    foreignField: '_id',
+                    as: 'authorDocument'
+                }
+            },
+            //to project the required data
+            // {
+            //     $project: {
+            //         title: 1,
+            //         body: 1,
+            //         createdDate: 1,
+            //         author: {
+            //             $arryElemAt : ["authorDocument", 0]
+            //         }
+            //     }
+            // }
+        ]).toArray();
+        //return await postsCollection.findOne({ _id: new ObjectId(postid) });
+    }
+}
+
+
 module.exports = Post;

@@ -39,3 +39,8 @@
 * we used a function to check whether a user has the logged in using req.session.user
 * if not we flashed approprite messages and redirected user to home
 * we use this function on routes where we want to restrict
+
+#### creating posts
+* we have two files namely post-controller and Post related to posts.
+* a person who has an account can create posts
+* each post by a person is marked with the id of the creator

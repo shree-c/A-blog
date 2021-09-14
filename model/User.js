@@ -15,6 +15,8 @@ const User = function (data) {
 
 //function to make sure the user has submitted only strings
 User.prototype.cleanUp = function () {
+    console.log('--->inside cleanup')
+    console.log(this)
     if (typeof (this.data.username) != 'string')
         this.data.username = '';
     if (typeof (this.data.email) != 'string')
@@ -59,6 +61,8 @@ User.prototype.validate = async function () {
             this.errors.push('email already taken');
         }
     }
+    console.log('-->after validation')
+    console.log(this);
 };
 //function for handeling register
 User.prototype.register = async function () {
@@ -71,7 +75,11 @@ User.prototype.register = async function () {
         //hashing the password
         const salt = bcrypt.genSaltSync(10);
         this.data.password = bcrypt.hashSync(this.data.password, salt);
+        console.log('inserting data-->')
+        console.log(this);
         await userCollection.insertOne(this.data);
+        console.log('after insertion-->')
+        console.log(this);
         this.getAvatar();
     }
 };
@@ -83,7 +91,7 @@ User.prototype.login = async function () {
     this.cleanUp();
     const attemptedUser = await userCollection.findOne({ username: this.data.username });
     if (attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password)) {
-        this.data.email = attemptedUser.email;
+        this.data = attemptedUser;
         this.getAvatar();
         return;
     }

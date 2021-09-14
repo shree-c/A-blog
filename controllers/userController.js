@@ -17,6 +17,7 @@ exports.register = async function (req, res) {
     const user = new User(req.body);
     //register function calls validate function on the prototype of User to validate user data
     await user.register();
+    console.log('after register function-->')
     if (user.errors.length) {
         //adding flash messages if there are any errors
         user.errors.forEach((message) => {
@@ -31,7 +32,7 @@ exports.register = async function (req, res) {
         req.session.user = {
             username: req.body.username,
             avatar: user.avatar,
-            _id: user.data.id
+            _id: user.data._id
         };
         //since we are creating the new session it is an async action
         req.session.save(() => {
@@ -41,14 +42,14 @@ exports.register = async function (req, res) {
 };
 //for handeling login
 exports.login = async function (req, res) {
-    let user = new User(req.body);
+    const user = new User(req.body);
     try {
         await user.login();
         //storing session data on request object
         req.session.user = {
             username: req.body.username,
-            avatar : user.avatar,
-            _id : user.data._id,
+            avatar: user.avatar,
+            _id: user.data._id,
         };
         //since we are creating the new session it is an async action
         req.session.save(() => {
@@ -79,8 +80,8 @@ exports.mustBeLoggedIn = function (req, res, next) {
         next();
     } else {
         req.flash('errors', 'you must be logged in');
-        req.session.save(()=>{
+        req.session.save(() => {
             res.redirect('/');
         });
     }
-}; 
+};
