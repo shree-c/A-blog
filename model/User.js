@@ -7,16 +7,18 @@ const validator = require('validator');
 //pulling in md5 for gravatar
 const md5 = require('md5');
 //what defines a user?
-const User = function (data) {
+//making changes to the constructor function to add second boolean argument for gravatar fetching
+const User = function (data, getAvatar = ture) {
     this.data = data;
     // for managing errors
     this.errors = [];
+    if (getAvatar) {
+        this.getAvatar();
+    }
 };
 
 //function to make sure the user has submitted only strings
 User.prototype.cleanUp = function () {
-    console.log('--->inside cleanup')
-    console.log(this)
     if (typeof (this.data.username) != 'string')
         this.data.username = '';
     if (typeof (this.data.email) != 'string')
@@ -61,8 +63,6 @@ User.prototype.validate = async function () {
             this.errors.push('email already taken');
         }
     }
-    console.log('-->after validation')
-    console.log(this);
 };
 //function for handeling register
 User.prototype.register = async function () {
@@ -75,11 +75,7 @@ User.prototype.register = async function () {
         //hashing the password
         const salt = bcrypt.genSaltSync(10);
         this.data.password = bcrypt.hashSync(this.data.password, salt);
-        console.log('inserting data-->')
-        console.log(this);
         await userCollection.insertOne(this.data);
-        console.log('after insertion-->')
-        console.log(this);
         this.getAvatar();
     }
 };

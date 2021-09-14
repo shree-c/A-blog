@@ -1,5 +1,6 @@
 const postsCollection = require('../db').db('complexapp').collection('posts');
 const { ObjectId } = require('mongodb');
+const User = require('./User');
 let Post = function (data, _id) {
     //contains body and title
     this.data = data;
@@ -51,7 +52,7 @@ Post.findSingleById = async function (postid) {
         //but that is stored in users collection
         //Aggregation operations process data records and return computed results. Aggregation operations group values from multiple documents together, and can perform a variety of operations on the grouped data to return a single result.
         //it takes an array of operations
-        return postsCollection.aggregate([
+        let posts = await postsCollection.aggregate([
             {
                 $match: {
                     _id: new ObjectId(postid),
@@ -66,18 +67,28 @@ Post.findSingleById = async function (postid) {
                     as: 'authorDocument'
                 }
             },
-            //to project the required data
-            // {
-            //     $project: {
-            //         title: 1,
-            //         body: 1,
-            //         createdDate: 1,
-            //         author: {
-            //             $arryElemAt : ["authorDocument", 0]
-            //         }
-            //     }
-            // }
+            // to project the required data
+            {
+                $project: {
+                    _id: 0,
+                    title: 1,
+                    body: 1,
+                    createdDate: 1,
+                    author: {
+                        $arrayElemAt : ["$authorDocument", 0]
+                    }
+                }
+            }
         ]).toArray();
+        //clean up author property
+        posts = posts.map(function (post) {
+            post.author = {
+                username : post.author.username,
+                avatar : new User(post.author, true).avatar
+            }
+            return post;
+        })
+        return posts;
         //return await postsCollection.findOne({ _id: new ObjectId(postid) });
     }
 }

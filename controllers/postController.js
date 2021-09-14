@@ -22,7 +22,6 @@ exports.viewSingle = async function (req, res) {
     try {
         const postObject = await Post.findSingleById(req.params.id);
         //we get array as a result of aggregrate operation
-        console.log(postObject[0]);
         if (postObject.length)
             res.render('single-post-screen', {post: postObject[0]});
         else
@@ -30,6 +29,7 @@ exports.viewSingle = async function (req, res) {
     } catch(e) {
         //we are rendering 404 for every error
         //we can put please try again later for db errors
+        console.log(e);
         res.render('404');
     }
 };
