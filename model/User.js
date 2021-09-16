@@ -8,7 +8,7 @@ const validator = require('validator');
 const md5 = require('md5');
 //what defines a user?
 //making changes to the constructor function to add second boolean argument for gravatar fetching
-const User = function (data, getAvatar = ture) {
+const User = function (data, getAvatar = false) {
     this.data = data;
     // for managing errors
     this.errors = [];
@@ -98,5 +98,27 @@ User.prototype.login = async function () {
 User.prototype.getAvatar = function () {
     this.avatar = `https://gravatar.com/avatar/${md5(this.data.email)}?s=128`;
 };
+//profile related functions
+User.findByUsername = function (username) {
+    return new Promise(function (resolve, reject) {
+        if (typeof (username) !== 'string') {
+            reject();
+            return;
+        }
+        userCollection.findOne({ username: username }).then(function (userObject) {
+            if (userObject) {
+                userObject = new User(userObject, true)
+                userObject = {
+                    _id: userObject.data._id,
+                    username: userObject.data.username,
+                    avatar: userObject.avatar
+                }
+                resolve(userObject);
+            }
+        }).catch(function () {
+            reject();
+        })
+    })
+}
 
 module.exports = User;

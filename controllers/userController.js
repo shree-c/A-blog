@@ -1,5 +1,7 @@
-// these functions are going to be used in router
+//--------> these functions are going to be used in router
+//used to load single profile screen
 const User = require('../model/User');
+const Post = require('../model/Post')
 //going to load the home page for a user
 exports.home = function (req, res) {
     //if there is session data we render dashboard else login page
@@ -17,7 +19,6 @@ exports.register = async function (req, res) {
     const user = new User(req.body);
     //register function calls validate function on the prototype of User to validate user data
     await user.register();
-    console.log('after register function-->')
     if (user.errors.length) {
         //adding flash messages if there are any errors
         user.errors.forEach((message) => {
@@ -85,3 +86,30 @@ exports.mustBeLoggedIn = function (req, res, next) {
         });
     }
 };
+
+//userprofile related functions
+exports.ifUserExists = function (req, res, next) {
+    //finding if a user exists and setting his details on req.profileUser obj
+    User.findByUsername(req.params.username).then(function (userDocument) {
+        req.profileUser = userDocument;
+        next();
+    }).catch(function () {
+        res.render('404');
+    });
+}
+
+exports.profilePostsScreen = async function (req, res) {
+    //pulling in all the posts
+    try {
+        const allposts = await Post.findByAuthorId(req.profileUser._id);
+        res.render('profile', {
+            posts: allposts,
+            profileusername: req.profileUser.username,
+            profileavatar: req.profileUser.avatar
+        })
+    } catch(err) {
+        console.log(err);
+        res.render('404');
+    }
+
+}
