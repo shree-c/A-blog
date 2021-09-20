@@ -10,7 +10,7 @@ exports.home = function (req, res) {
         res.render('home-dashboard');
     } else {
         //rendering the ejs file and display flash messages if there are any
-        res.render('home-guest', { errors: req.flash('errors'), regErrors: req.flash('regErrors') });
+        res.render('home-guest', { regErrors: req.flash('regErrors') });
     }
 };
 //for handeling new user registeration
@@ -107,7 +107,7 @@ exports.profilePostsScreen = async function (req, res) {
             profileusername: req.profileUser.username,
             profileavatar: req.profileUser.avatar
         })
-    } catch(err) {
+    } catch (err) {
         console.log(err);
         res.render('404');
     }

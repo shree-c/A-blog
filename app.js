@@ -42,6 +42,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 // setting up a local object for every ejsfile to access
 app.use((req, res, next)=>{
+    //make all error and success flash messages available from all templates
+    res.locals.errors  = req.flash('errors');
+    res.locals.success = req.flash('success');
+    //making new variable named visitor id to check whether he is logged in or he is guest
+    req.visitorId = req.session.user ? req.session.user._id : 0;
+    //making sessions object available globally on ejs template
     res.locals.user = req.session.user;
     next();
 });
