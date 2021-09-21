@@ -8,6 +8,10 @@ const router = require('./router');
 const session = require('express-session');
 //for storing session data in database
 const mongoStore = require('connect-mongo');
+//pulling in markdown package
+const marked = require('marked');
+//pulling in sanitize html
+const sanitizehtml = require('sanitize-html');
 //pulling in flash package
 const flash = require('connect-flash');
 //creating express app
@@ -42,6 +46,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 // setting up a local object for every ejsfile to access
 app.use((req, res, next)=>{
+    //make markdown content available within templates
+    res.locals.filterUserHtml = function(content) {
+        return sanitizehtml(marked(content), {allowedTags: ['p', 'br', 'ul', 'li', 'strong', 'ol', 'i', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'], allowedAttributes: {}});
+    }
     //make all error and success flash messages available from all templates
     res.locals.errors  = req.flash('errors');
     res.locals.success = req.flash('success');

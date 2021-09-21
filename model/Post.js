@@ -1,6 +1,8 @@
 const postsCollection = require('../db').db('complexapp').collection('posts');
 const { ObjectId } = require('mongodb');
 const User = require('./User');
+//for sanitizing html
+const sanitizehtml = require('sanitize-html')
 let Post = function (data, _id, requestedPostId) {
     //contains body and title
     this.data = data;
@@ -17,8 +19,8 @@ Post.prototype.cleanUp = function () {
         this.data.body = '';
     }
     this.data = {
-        body: this.data.body.trim(),
-        title: this.data.title.trim(),
+        body: sanitizehtml(this.data.body.trim(), { allowedTags: [], allowedAttributes: {} }),
+        title: sanitizehtml(this.data.title.trim(), { allowedTags: [], allowedAttributes: {} }),
         createdDate: new Date(),
         author: new ObjectId(this._id),
     };
@@ -91,34 +93,36 @@ Post.commonAggrigate = async function (uniqArrayOps, visitorId) {
     })
     return posts;
 }
-Post.findSingleById =  function (postid, visitorId) {
+Post.findSingleById = function (postid, visitorId) {
     //finding the post by id
     if (typeof (postid) == 'string' && ObjectId.isValid(postid)) {
         return this.commonAggrigate([{
-                $match: {
-                    _id: new ObjectId(postid),
-                }
-            }], visitorId);
+            $match: {
+                _id: new ObjectId(postid),
+            }
+        }], visitorId);
     } else
         throw new Error('not a valid id')
 }
 //pulling in posts for single profile screen
 Post.findByAuthorId = function (authorId) {
     return this.commonAggrigate([
-        {$match: {
-            author: authorId
-        }},
-        {$sort: {createdDate: -1}}
+        {
+            $match: {
+                author: authorId
+            }
+        },
+        { $sort: { createdDate: -1 } }
     ])
 }
 //actually updating post details called from update
 Post.prototype.actuallyUpdate = function () {
-    return new Promise(async (resolve, reject)=>{
+    return new Promise(async (resolve, reject) => {
         this.cleanUp();
         this.validate();
         if (!this.errors.length) {
-            await 
-            postsCollection.findOneAndUpdate({_id: new ObjectId(this.requestedPostId)}, {$set: {title: this.data.title, body: this.data.body}})
+            await
+                postsCollection.findOneAndUpdate({ _id: new ObjectId(this.requestedPostId) }, { $set: { title: this.data.title, body: this.data.body } })
             resolve('success');
         } else {
             resolve('failure')
@@ -128,19 +132,37 @@ Post.prototype.actuallyUpdate = function () {
 //updating the post
 Post.prototype.update = function () {
     console.log('debug: from update post')
-    return new Promise(async (resolve, reject)=>{
+    return new Promise(async (resolve, reject) => {
         try {
-           let post = await Post.findSingleById(this.requestedPostId, this._id);
-           console.log(post)
-           if (post[0].isVisitorOwner) {
-               //actually update db
-               let status = await this.actuallyUpdate();
-               resolve(status);
-           }
-           this.errors.push('you do not have permission to edit this post')
-           reject('failure');
+            let post = await Post.findSingleById(this.requestedPostId, this._id);
+            console.log(post)
+            if (post[0].isVisitorOwner) {
+                //actually update db
+                let status = await this.actuallyUpdate();
+                resolve(status);
+            }
+            this.errors.push('you do not have permission to edit this post')
+            reject('failure');
         } catch (error) {
             reject();
+        }
+    })
+}
+//for deleting a post
+Post.delete = function (postid, visitorid) {
+    return new Promise(async (resolve, reject)=>{
+        try {
+            let post = await Post.findSingleById(postid, visitorid);
+            if (post.length) {
+                if (post[0].isVisitorOwner) {
+                    postsCollection.deleteOne({_id: new ObjectId(postid)});
+                    resolve();
+                } else {
+                    reject();
+                }
+            }
+        } catch (error) {
+           reject(error) 
         }
     })
 }

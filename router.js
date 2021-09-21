@@ -15,7 +15,9 @@ router.get('/post/:id', postController.viewSingle);
 //post edit
 router.get('/post/:id/edit', userController.mustBeLoggedIn, postController.viewEditScreen);
 //updating the post
-router.post('/post/:id/edit', userController.mustBeLoggedIn,postController.edit);
+router.post('/post/:id/edit', userController.mustBeLoggedIn, postController.edit);
+//deleting a post
+router.post('/post/:id/delete', userController.mustBeLoggedIn, postController.delete);
 //profile related routes
 router.get('/profile/:username', userController.ifUserExists, userController.profilePostsScreen);
 module.exports = router;

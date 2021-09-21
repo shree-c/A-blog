@@ -21,6 +21,7 @@
     "marked": "^3.0.4",
     "md5": "^2.3.0",
     "mongodb": "^4.1.1",
+    "sanitize-html": "^2.5.1",
     "validator": "^13.6.0"
   },
   "devDependencies": {
