@@ -1,44 +1,68 @@
+import axios from 'axios';
 export default class Search {
-    //constructor: select dom elements and keep track of useful data
-    constructor() {
-        this.injectHtml();
-        this.headerSearchIcon = document.querySelector('.header-search-icon');
-        this.overlay = document.querySelector('.search-overlay');
-        this.closeIcon = document.querySelector('.close-live-search');
-        this.inputField = document.querySelector('#live-search-field');
-        this.searchResults = document.querySelector('.live-search-results')
-        this.loaderIcon = document.querySelector('.circle-loader');
-        this.events();
+  //constructor: select dom elements and keep track of useful data
+  constructor() {
+    this.injectHtml();
+    this.headerSearchIcon = document.querySelector('.header-search-icon');
+    this.overlay = document.querySelector('.search-overlay');
+    this.closeIcon = document.querySelector('.close-live-search');
+    this.inputField = document.querySelector('#live-search-field');
+    this.searchResults = document.querySelector('.live-search-results');
+    this.loaderIcon = document.querySelector('.circle-loader');
+    this.typingWaitTimer;
+    this.previourValue = '';
+    this.events();
+  }
+  //events: to be called from constructor 
+  events() {
+    //key press events
+    this.inputField.addEventListener('keyup', () => {
+      //showing loader icon as soon as keys are pressed in search bar
+      this.keyPressHandler();
+    })
+    this.closeIcon.addEventListener('click', () => this.closeOverlay());
+    this.headerSearchIcon.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.openOverlay();
+    })
+  }
+  openOverlay() {
+    this.overlay.classList.add('search-overlay--visible');
+    //50 ms wait due to make search bar visible first and then focus
+    setTimeout(() => {
+      this.inputField.focus();
+    }, 50);
+  }
+  closeOverlay() {
+    this.overlay.classList.remove('search-overlay--visible');
+  }
+  keyPressHandler() {
+    //send request only when the delay between two key strokes is more than given time
+    //also when it is not same as previous value
+    //each time if block runs it clears up the previous timer
+    let value = this.inputField.value;
+    if (value && value != this.previourValue) {
+      clearTimeout(this.typingWaitTimer);
+      this.showLoaderIcon();
+      this.typingWaitTimer = setTimeout(() => {
+        this.sendRequest();
+      }, 1000)
     }
-    //events: to be called from constructor 
-    events() {
-        //key press events
-        this.inputField.addEventListener('keyup', ()=>{
-            this.keyPressHandler();
-        })
-        this.closeIcon.addEventListener('click', () => this.closeOverlay());
-        this.headerSearchIcon.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.openOverlay();
-        })
-    }
-    openOverlay() {
-        this.overlay.classList.add('search-overlay--visible');
-        setTimeout(() => {
-            this.inputField.focus();
-        }, 50);
-    }
-    closeOverlay() {
-        this.overlay.classList.remove('search-overlay--visible');
-    }
-    keyPressHandler() {
-        this.showLoaderIcon();
-    }
-    showLoaderIcon() {
-        this.loaderIcon.classList.add('circle-loader--visible');
-    }
-    injectHtml() {
-        document.body.insertAdjacentHTML('beforeend', `<div class="search-overlay">
+  }
+  showLoaderIcon() {
+    this.loaderIcon.classList.add('circle-loader--visible');
+  }
+  sendRequest() {
+    axios.post('/search', {
+      searchTerm : this.inputField.value
+    }).then(()=>{
+
+    }).catch(()=>{
+      alert('hello failed');
+    })
+  }
+  injectHtml() {
+    document.body.insertAdjacentHTML('beforeend', `<div class="search-overlay">
     <div class="search-overlay-top shadow-sm">
       <div class="container container--narrow">
         <label for="live-search-field" class="search-overlay-icon"><i class="fas fa-search"></i></label>
@@ -77,5 +101,5 @@ export default class Search {
   </div>
   <!-- search feature end -->
 `)
-    }
+  }
 }
