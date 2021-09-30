@@ -1,7 +1,6 @@
 //--------> these functions are going to be used in router
 //used to load single profile screen
 const User = require('../model/User');
-const Post = require('../model/Post')
 //going to load the home page for a user
 exports.home = function (req, res) {
     //if there is session data we render dashboard else login page

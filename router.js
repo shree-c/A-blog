@@ -20,4 +20,6 @@ router.post('/post/:id/edit', userController.mustBeLoggedIn, postController.edit
 router.post('/post/:id/delete', userController.mustBeLoggedIn, postController.delete);
 //profile related routes
 router.get('/profile/:username', userController.ifUserExists, userController.profilePostsScreen);
+//live search
+router.post('/search', postController.search);
 module.exports = router;

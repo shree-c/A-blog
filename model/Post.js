@@ -2,7 +2,7 @@ const postsCollection = require('../db').db('complexapp').collection('posts');
 const { ObjectId } = require('mongodb');
 const User = require('./User');
 //for sanitizing html
-const sanitizehtml = require('sanitize-html')
+const sanitizehtml = require('sanitize-html');
 let Post = function (data, _id, requestedPostId) {
     //contains body and title
     this.data = data;
@@ -49,7 +49,7 @@ Post.prototype.create = async function () {
     }
 };
 //preparing a common aggrigate function for single post screen and profile screen
-Post.commonAggrigate = async function (uniqArrayOps, visitorId) {
+Post.commonAggrigate = async function (uniqArrayOps, visitorId, finalops = []) {
     //so we need username for displaying author of a post
     //but that is stored in users collection
     //Aggregation operations process data records and return computed results. Aggregation operations group values from multiple documents together, and can perform a variety of operations on the grouped data to return a single result.
@@ -81,10 +81,11 @@ Post.commonAggrigate = async function (uniqArrayOps, visitorId) {
                 }
             }
         }
-    ])
+    ]).concat(finalops);
     let posts = await postsCollection.aggregate(concatinatedOps).toArray();
     posts = posts.map(function (post) {
         post.isVisitorOwner = post.authorId.equals(visitorId);
+        post.authorId = undefined;
         post.author = {
             username: post.author.username,
             avatar: new User(post.author, true).avatar
@@ -150,20 +151,49 @@ Post.prototype.update = function () {
 }
 //for deleting a post
 Post.delete = function (postid, visitorid) {
-    return new Promise(async (resolve, reject)=>{
+    return new Promise(async (resolve, reject) => {
         try {
             let post = await Post.findSingleById(postid, visitorid);
             if (post.length) {
                 if (post[0].isVisitorOwner) {
-                    postsCollection.deleteOne({_id: new ObjectId(postid)});
+                    postsCollection.deleteOne({ _id: new ObjectId(postid) });
                     resolve();
                 } else {
                     reject();
                 }
             }
         } catch (error) {
-           reject(error) 
+            reject(error)
         }
+    })
+}
+
+Post.search = function (searchTerm) {
+    return new Promise(async (resolve, reject) => {
+        if (typeof (searchTerm) == 'string') {
+            try {
+                let posts = await Post.commonAggrigate([
+                    {
+                        '$match': {
+                            '$text': {
+                                '$search': searchTerm
+                            }
+                        }
+                    }
+                ], undefined, [{
+                    $sort: { score: { $meta: 'textScore' } },
+                }
+                ])
+                // console.log(posts);
+                resolve(posts)
+
+            } catch (error) {
+                reject(error);
+            }
+        } else {
+            reject();
+        }
+
     })
 }
 module.exports = Post;

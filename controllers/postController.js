@@ -110,3 +110,14 @@ exports.delete = function (req, res) {
         })
     })
 }
+
+exports.search = function (req, res) {
+    // console.log(req.body.searchTerm);
+    Post.search(req.body.searchTerm).then((val)=>{
+        console.log(val)
+        res.json(val);
+    }).catch((err)=>{
+        console.log(err);
+        res.json([])
+    });
+}
