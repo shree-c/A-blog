@@ -1,4 +1,5 @@
 import axios from 'axios';
+import dompurify from 'dompurify'
 export default class Search {
   //constructor: select dom elements and keep track of useful data
   constructor() {
@@ -78,7 +79,7 @@ export default class Search {
   }
   renderResultsHtml(posts) {
     if (posts.length) {
-      this.searchResults.innerHTML = `<div class="list-group shadow-sm">
+      this.searchResults.innerHTML = dompurify.sanitize(`<div class="list-group shadow-sm">
             <div class="list-group-item active"><strong>Search Results</strong> (${posts.length} item${(posts.length>1?'s':'')} found)</div>
             ${
               posts.map((posts)=>{
@@ -89,7 +90,7 @@ export default class Search {
               }).join('')
             }
           </div>
-`;
+`);
     } else {
       this.searchResults.innerHTML = `<p class="text-center alert alert-danger shadow-minimal"> No search results. </p>`
     }
