@@ -41,9 +41,15 @@ export default class Search {
     //also when it is not same as previous value
     //each time if block runs it clears up the previous timer
     let value = this.inputField.value;
+    if (value == '') {
+      clearTimeout(this.typingWaitTimer);
+      this.hideLoaderIcon();
+      this.hideResultsArea();
+    }
     if (value && value != this.previourValue) {
       clearTimeout(this.typingWaitTimer);
       this.showLoaderIcon();
+      this.hideResultsArea();
       this.typingWaitTimer = setTimeout(() => {
         this.sendRequest();
       }, 500);
@@ -52,14 +58,43 @@ export default class Search {
   showLoaderIcon() {
     this.loaderIcon.classList.add('circle-loader--visible');
   }
+  hideLoaderIcon() {
+    this.loaderIcon.classList.remove('circle-loader--visible');
+  }
+  showResultsArea() {
+    this.searchResults.classList.add('live-search-results--visible');
+  }
+  hideResultsArea() {
+    this.searchResults.classList.remove('live-search-results--visible');
+  }
   sendRequest() {
     axios.post('/search', {
-      searchTerm : this.inputField.value
-    }).then((val)=>{
-      console.log(val.data);
-    }).catch(()=>{
+      searchTerm: this.inputField.value
+    }).then((val) => {
+      this.renderResultsHtml(val.data);
+    }).catch(() => {
       // alert('hello failed');
     })
+  }
+  renderResultsHtml(posts) {
+    if (posts.length) {
+      this.searchResults.innerHTML = `<div class="list-group shadow-sm">
+            <div class="list-group-item active"><strong>Search Results</strong> (${posts.length} item${(posts.length>1?'s':'')} found)</div>
+            ${
+              posts.map((posts)=>{
+                return `<a href="/post/${posts._id}" class="list-group-item list-group-item-action">
+              <img class="avatar-tiny" src="${posts.author.avatar}"> <strong>${posts.title}</strong>
+              <span class="text-muted small">by ${posts.author.username} on ${new Date(posts.createdDate).toLocaleDateString()}</span>
+            </a>`
+              }).join('')
+            }
+          </div>
+`;
+    } else {
+      this.searchResults.innerHTML = `<p class="text-center alert alert-danger shadow-minimal"> No search results. </p>`
+    }
+    this.hideLoaderIcon();
+    this.showResultsArea();
   }
   injectHtml() {
     document.body.insertAdjacentHTML('beforeend', `<div class="search-overlay">
@@ -74,28 +109,7 @@ export default class Search {
     <div class="search-overlay-bottom">
       <div class="container container--narrow py-3">
         <div class="circle-loader"></div>
-        <div class="live-search-results ">
-          <div class="list-group shadow-sm">
-            <div class="list-group-item active"><strong>Search Results</strong> (4 items found)</div>
-
-            <a href="#" class="list-group-item list-group-item-action">
-              <img class="avatar-tiny" src="https://gravatar.com/avatar/b9216295c1e3931655bae6574ac0e4c2?s=128"> <strong>Example Post #1</strong>
-              <span class="text-muted small">by barksalot on 0/14/2019</span>
-            </a>
-            <a href="#" class="list-group-item list-group-item-action">
-              <img class="avatar-tiny" src="https://gravatar.com/avatar/b9408a09298632b5151200f3449434ef?s=128"> <strong>Example Post #2</strong>
-              <span class="text-muted small">by brad on 0/12/2019</span>
-            </a>
-            <a href="#" class="list-group-item list-group-item-action">
-              <img class="avatar-tiny" src="https://gravatar.com/avatar/b9216295c1e3931655bae6574ac0e4c2?s=128"> <strong>Example Post #3</strong>
-              <span class="text-muted small">by barksalot on 0/14/2019</span>
-            </a>
-            <a href="#" class="list-group-item list-group-item-action">
-              <img class="avatar-tiny" src="https://gravatar.com/avatar/b9408a09298632b5151200f3449434ef?s=128"> <strong>Example Post #4</strong>
-              <span class="text-muted small">by brad on 0/12/2019</span>
-            </a>
-          </div>
-        </div>
+        <div class="live-search-results "></div>
       </div>
     </div>
   </div>

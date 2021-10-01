@@ -132,11 +132,9 @@ Post.prototype.actuallyUpdate = function () {
 }
 //updating the post
 Post.prototype.update = function () {
-    console.log('debug: from update post')
     return new Promise(async (resolve, reject) => {
         try {
             let post = await Post.findSingleById(this.requestedPostId, this._id);
-            console.log(post)
             if (post[0].isVisitorOwner) {
                 //actually update db
                 let status = await this.actuallyUpdate();
@@ -184,7 +182,6 @@ Post.search = function (searchTerm) {
                     $sort: { score: { $meta: 'textScore' } },
                 }
                 ])
-                // console.log(posts);
                 resolve(posts)
 
             } catch (error) {
