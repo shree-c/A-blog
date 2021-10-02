@@ -2,6 +2,7 @@
 //used to load single profile screen
 const User = require('../model/User');
 //going to load the home page for a user
+const Post = require('../model/Post')
 exports.home = function (req, res) {
     //if there is session data we render dashboard else login page
     if (req.session.user) {
