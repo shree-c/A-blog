@@ -2,7 +2,8 @@
 //used to load single profile screen
 const User = require('../model/User');
 //going to load the home page for a user
-const Post = require('../model/Post')
+const Post = require('../model/Post');
+const Follow = require('../model/Follow');
 exports.home = function (req, res) {
     //if there is session data we render dashboard else login page
     if (req.session.user) {
@@ -105,11 +106,21 @@ exports.profilePostsScreen = async function (req, res) {
         res.render('profile', {
             posts: allposts,
             profileusername: req.profileUser.username,
-            profileavatar: req.profileUser.avatar
+            profileavatar: req.profileUser.avatar,
+            isFollowing : req.isFollowing
         })
     } catch (err) {
         console.log(err);
         res.render('404');
     }
 
+}
+
+exports.sharedProfileData = async function (req, res, next) {
+    let isFollowing = false;
+    if (req.session.user) {
+        isFollowing = await Follow.isVisistorFollowing(req.profileUser._id, req.visitorId);
+    }
+    req.isFollowing = isFollowing;
+    next();
 }

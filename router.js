@@ -20,7 +20,7 @@ router.post('/post/:id/edit', userController.mustBeLoggedIn, postController.edit
 //deleting a post
 router.post('/post/:id/delete', userController.mustBeLoggedIn, postController.delete);
 //profile related routes
-router.get('/profile/:username', userController.ifUserExists, userController.profilePostsScreen);
+router.get('/profile/:username', userController.ifUserExists,userController.sharedProfileData, userController.profilePostsScreen);
 //live search
 router.post('/search', postController.search);
 //following
