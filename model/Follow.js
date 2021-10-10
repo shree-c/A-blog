@@ -16,11 +16,16 @@ Follow.prototype.cleanup = function () {
 Follow.prototype.validate = async function (action) {
     //checking whether the followed account exists
     let followedAccount = await usersCollection.findOne({ username: this.followUsername });
+    if (followedAccount._id === this.authorId) {
+        this.errors.push('you cannot follow yourself')
+        return
+    }
     if (followedAccount) {
         this.followedId = followedAccount._id;
     } else {
-        if (action === 'create')
+        if (action === 'create') {
             this.errors.push('you cannot follow a user that does not exist');
+        }
         else
             this.errors.push('you cannot unfollow a user that does not exist');
 
