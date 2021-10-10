@@ -1,16 +1,16 @@
 const Follow = require('../model/Follow')
 exports.addFollow = function (req, res) {
     let follow = new Follow(req.params.username, req.visitorId);
-    follow.create().then(()=>{
+    follow.create().then(() => {
         req.flash('success', `successfully followed ${req.params.username}`)
-        req.session.save(()=>{
+        req.session.save(() => {
             res.redirect(`/profile/${req.params.username}`)
         })
-    }).catch((err)=>{
-        err.forEach((err)=>{
+    }).catch((err) => {
+        err.forEach((err) => {
             req.flash('errors', err);
         })
-        req.session.save(()=>{
+        req.session.save(() => {
             res.redirect(`/`)
         });
     });
@@ -18,16 +18,16 @@ exports.addFollow = function (req, res) {
 
 exports.removeFollow = function (req, res) {
     let follow = new Follow(req.params.username, req.visitorId);
-    follow.delete().then(()=>{
+    follow.delete().then(() => {
         req.flash('success', `successfully stopped following ${req.params.username}`)
-        req.session.save(()=>{
+        req.session.save(() => {
             res.redirect(`/profile/${req.params.username}`)
         })
-    }).catch((err)=>{
-        err.forEach((err)=>{
+    }).catch((err) => {
+        err.forEach((err) => {
             req.flash('errors', err);
         })
-        req.session.save(()=>{
+        req.session.save(() => {
             res.redirect(`/`)
         });
     });
