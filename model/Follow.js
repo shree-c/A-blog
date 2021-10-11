@@ -1,4 +1,5 @@
 const { ObjectId } = require('mongodb');
+const User = require('./User');
 
 const usersCollection = require('../db').db('complexapp').collection('cusers');
 const followCollection = require('../db').db('complexapp').collection('follows');
@@ -86,5 +87,43 @@ Follow.prototype.delete = function () {
         }
     })
 }
-
+//getting followers
+//error handling needs to be done
+Follow.getFollowersById = async function (id) {
+    let followersList = await followCollection.aggregate([
+        {
+            '$match': {
+                'followedId': new ObjectId(id)
+            }
+        }, {
+            '$lookup': {
+                'from': 'cusers',
+                'localField': 'authorId',
+                'foreignField': '_id',
+                'as': 'usernamefollowers'
+            }
+        }, {
+            '$project': {
+                'username': {
+                    '$arrayElemAt': [
+                        '$usernamefollowers.username', 0
+                    ]
+                },
+                'email': {
+                    '$arrayElemAt': [
+                        '$usernamefollowers.email', 0
+                    ]
+                }
+            }
+        }
+    ]).toArray();
+    followersList = followersList.map(function (item) {
+        let user = new User(item, true)
+        return {
+            username: item.username,
+            avatar: user.avatar
+        }
+    })
+    return followersList
+}
 module.exports = Follow;

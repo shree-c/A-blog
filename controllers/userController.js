@@ -107,7 +107,7 @@ exports.profilePostsScreen = async function (req, res) {
             posts: allposts,
             profileusername: req.profileUser.username,
             profileavatar: req.profileUser.avatar,
-            isFollowing : req.isFollowing
+            isFollowing: req.isFollowing
         })
     } catch (err) {
         console.log(err);
@@ -115,7 +115,7 @@ exports.profilePostsScreen = async function (req, res) {
     }
 
 }
-
+//checking whether a user is following or unfollowing for showing follow buttons
 exports.sharedProfileData = async function (req, res, next) {
     let isFollowing = false;
     if (req.session.user) {
@@ -123,4 +123,19 @@ exports.sharedProfileData = async function (req, res, next) {
     }
     req.isFollowing = isFollowing;
     next();
+}
+
+//followers screen 
+exports.profileFollowersScreen = async function (req, res) {
+    try {
+        let followers = await Follow.getFollowersById(req.profileUser._id);
+        res.render('profile-followers', {
+            profileusername: req.profileUser.username,
+            profileavatar: req.profileUser.avatar,
+            isFollowing: req.isFollowing,
+            followers: followers
+        })
+    } catch (error) {
+        res.render('404');
+    }
 }
