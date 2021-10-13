@@ -193,4 +193,10 @@ Post.search = function (searchTerm) {
 
     })
 }
+
+
+//getting post numbers
+Post.getNum = async function (id) {
+    return (await postsCollection.find({author: new ObjectId(id)}).toArray()).length
+}
 module.exports = Post;

@@ -2,14 +2,7 @@
   <div class="container py-md-5 container--narrow">
     <%-include('include/flash.ejs')%>
     <%-include('include/sharedfollowheader.ejs')%>
-      <div class="list-group">
-        <% followers.forEach((follower)=>{ %>
-          <a href="/profile/<%=follower.username%>" class="list-group-item list-group-item-action">
-            <img class="avatar-tiny" src="<%=follower.avatar%>">
-            <strong>
-              <%= follower.username %>
-          </a>
-          <% }) %>
-      </div>
+    <%-include('include/common-follow.ejs')%>
+
   </div>
   <%- include('include/footer.ejs') %>

@@ -87,43 +87,80 @@ Follow.prototype.delete = function () {
         }
     })
 }
-//getting followers
-//error handling needs to be done
-Follow.getFollowersById = async function (id) {
-    let followersList = await followCollection.aggregate([
-        {
-            '$match': {
-                'followedId': new ObjectId(id)
-            }
-        }, {
-            '$lookup': {
-                'from': 'cusers',
-                'localField': 'authorId',
-                'foreignField': '_id',
-                'as': 'usernamefollowers'
-            }
-        }, {
-            '$project': {
-                'username': {
-                    '$arrayElemAt': [
-                        '$usernamefollowers.username', 0
-                    ]
-                },
-                'email': {
-                    '$arrayElemAt': [
-                        '$usernamefollowers.email', 0
-                    ]
+
+//finding follownums
+Follow.getFollowMetrics = async function (id) {
+    let followednum = (await followCollection.find({ 'followedId': new ObjectId(id) }).toArray()).length
+    let followingnum = (await followCollection.find({ 'authorId': new ObjectId(id) }).toArray()).length
+    return {
+        followednum: followednum,
+        followingnum: followingnum
+    }
+}
+//common aggregate function for following and followers
+function commonFollowAggFun(who, whom, id) {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let list = await followCollection.aggregate([
+                {
+                    '$match': {
+                        [who]: new ObjectId(id)
+                    }
+                }, {
+                    '$lookup': {
+                        'from': 'cusers',
+                        'localField': whom,
+                        'foreignField': '_id',
+                        'as': 'usernamefollowers'
+                    }
+                }, {
+                    '$project': {
+                        'username': {
+                            '$arrayElemAt': [
+                                '$usernamefollowers.username', 0
+                            ]
+                        },
+                        'email': {
+                            '$arrayElemAt': [
+                                '$usernamefollowers.email', 0
+                            ]
+                        }
+                    }
                 }
-            }
-        }
-    ]).toArray();
-    followersList = followersList.map(function (item) {
-        let user = new User(item, true)
-        return {
-            username: item.username,
-            avatar: user.avatar
+            ]).toArray();
+            list = list.map(function (item) {
+                let user = new User(item, true)
+                return {
+                    username: item.username,
+                    avatar: user.avatar
+                }
+            })
+            resolve(list);
+        } catch (error) {
+            reject(error)
         }
     })
-    return followersList
 }
+//getting followng
+Follow.getFollowingById = async function (id) {
+    return new Promise((resolve, reject) => {
+        commonFollowAggFun('authorId', 'followedId', id).then((val) => {
+            resolve(val)
+        }).catch((err) => {
+            reject(err)
+        })
+    })
+}
+//getting followers
+Follow.getFollowersById = async function (id) {
+    return new Promise((resolve, reject) => {
+        commonFollowAggFun('followedId', 'authorId', id).then((val) => {
+            resolve(val)
+        }).catch((err) => {
+            reject(err)
+        })
+    })
+}
+
 module.exports = Follow;
