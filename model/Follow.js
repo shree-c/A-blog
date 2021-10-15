@@ -125,6 +125,11 @@ function commonFollowAggFun(who, whom, id) {
                             '$arrayElemAt': [
                                 '$usernamefollowers.email', 0
                             ]
+                        },
+                        'userid': {
+                            '$arrayElemAt': [
+                                '$usernamefollowers._id', 0
+                            ]
                         }
                     }
                 }
@@ -133,7 +138,8 @@ function commonFollowAggFun(who, whom, id) {
                 let user = new User(item, true)
                 return {
                     username: item.username,
-                    avatar: user.avatar
+                    avatar: user.avatar,
+                    userid: item.userid
                 }
             })
             resolve(list);

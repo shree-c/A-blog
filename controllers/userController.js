@@ -8,7 +8,11 @@ exports.home = function (req, res) {
     //if there is session data we render dashboard else login page
     if (req.session.user) {
         //pulling in username from session data
-        res.render('home-dashboard');
+        Post.getFollowingPosts(req.session.user._id).then((postsArr) => {
+            console.log(postsArr)
+            res.render('home-dashboard', {
+            })
+        }).catch();
     } else {
         //rendering the ejs file and display flash messages if there are any
         res.render('home-guest', { regErrors: req.flash('regErrors') });

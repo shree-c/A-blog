@@ -3,6 +3,7 @@ const { ObjectId } = require('mongodb');
 const User = require('./User');
 //for sanitizing html
 const sanitizehtml = require('sanitize-html');
+const Follow = require('./Follow');
 let Post = function (data, _id, requestedPostId) {
     //contains body and title
     this.data = data;
@@ -197,6 +198,19 @@ Post.search = function (searchTerm) {
 
 //getting post numbers
 Post.getNum = async function (id) {
-    return (await postsCollection.find({author: new ObjectId(id)}).toArray()).length
+    return (await postsCollection.find({ author: new ObjectId(id) }).toArray()).length
+}
+
+//getting posts for dashboard
+Post.getFollowingPosts = function (id) {
+    return new Promise((resolve, reject) => {
+        Follow.getFollowingById(id).then(async (followingarr) => {
+            followingarr = followingarr.map((arr) => {
+                return arr.userid
+            })
+            const postsArr = await postsCollection.find({ author: { $in: followingarr } }).toArray()
+            resolve(postsArr);
+        })
+    })
 }
 module.exports = Post;
