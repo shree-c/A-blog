@@ -31,15 +31,6 @@ body, .tooltip
   top: -3px;
 }
 
-.avatar-tiny {
-  width: 24px;
-  height: 24px;
-  border-radius: 12px;
-  margin-right: 4px;
-  position: relative;
-  top: -1px;
-}
-
 .form-control-title {
   font-size: 2rem;
   font-weight: 500;
@@ -372,4 +363,48 @@ textarea.tall-textarea {
   border: none;
   outline: none;
   font-size: .75rem;
+}
+.postcon {
+  min-width: 340px;
+  max-width: 640px;
+  margin: auto;
+/*   background: yellow; */
+  padding: 30px;
+  -webkit-box-shadow: 0px 3px 40px -7px rgba(92,72,92,1);
+  -moz-box-shadow: 0px 3px 40px -7px rgba(92,72,92,1);
+  box-shadow: 0px 3px 40px -7px rgba(92,72,92,1);
+}
+.avatar-small {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 5px;
+  position: relative;
+  top: -3px;
+}
+
+.avatar-tiny {
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  margin-right: 4px;
+  position: relative;
+  top: -1px;
+}
+.postcon {
+  font-family: 'georgia';
+  font-size: 1.2rem;
+}
+.avatar {
+/*   margin: 10px; */
+  display: flex;
+  align-items: center;
+  outline: 2px solid black;
+}
+.username {
+  margin-left: 13px;
+}
+.colourless-link {
+  text-decoration: none;
+  color: inherit;
 }

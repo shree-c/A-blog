@@ -1,6 +1,7 @@
 <%- include('include/header') %>
   <div class="container py-md-5 container--narrow">
     <%-include('include/flash.ejs')%>
+    <% if (!posts.length) { %>
       <div class="text-center">
         <h2>Hello <strong>
             <%= user.username %>
@@ -11,5 +12,28 @@
           find content written by people with similar interests and then follow them.
         </p>
       </div>
+
+    <% } else {
+      posts.forEach((post)=>{ %>
+        <div class="postcon">
+          <a href="/profile<%= post.username %>" class="colourless-link">
+            <div class="avatar">
+              <img class="avatar-small avv" src="<%= post.avatar %>">
+              <span class="username"> <%= post.username %> </span>
+            </div>
+          </a>
+          <a href="/<%= post.avatar %>" class="colourless-link">
+            <div class="title">
+              <h3> <%= post.title %> </h3>
+            </div>
+            <div class="excerpt">
+              <p> <%= post.slice(0, 30) %> ...
+              </p>
+              <span class="date"> <%= post.date.toLocaleString()%> </span>
+          </a>
+        </div>
+        </div>
+      <%})
+    } %>
   </div>
   <%- include('include/footer') %>
