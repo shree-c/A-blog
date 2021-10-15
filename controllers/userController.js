@@ -9,8 +9,8 @@ exports.home = function (req, res) {
     if (req.session.user) {
         //pulling in username from session data
         Post.getFollowingPosts(req.session.user._id).then((postsArr) => {
-            console.log(postsArr)
             res.render('home-dashboard', {
+                posts: postsArr
             })
         }).catch();
     } else {

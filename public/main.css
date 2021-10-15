@@ -394,12 +394,16 @@ textarea.tall-textarea {
 .postcon {
   font-family: 'georgia';
   font-size: 1.2rem;
+  margin-bottom: 25px;
+}
+.postcon a:hover {
+  text-decoration: none;
+  color: inherit;
 }
 .avatar {
 /*   margin: 10px; */
   display: flex;
   align-items: center;
-  outline: 2px solid black;
 }
 .username {
   margin-left: 13px;

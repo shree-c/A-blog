@@ -205,10 +205,10 @@ Post.getNum = async function (id) {
 Post.getFollowingPosts = function (id) {
     return new Promise((resolve, reject) => {
         Follow.getFollowingById(id).then(async (followingarr) => {
-            followingarr = followingarr.map((arr) => {
+            const followingarrid = followingarr.map((arr) => {
                 return arr.userid
             })
-            const postsArr = await postsCollection.find({ author: { $in: followingarr } }).toArray()
+            const postsArr = await Post.commonAggrigate([{$match :{ author: { $in: followingarrid } }}], null, [])
             resolve(postsArr);
         })
     })
