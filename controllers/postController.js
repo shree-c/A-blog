@@ -29,6 +29,7 @@ exports.viewSingle = async function (req, res) {
     try {
         //passing visitorid variable available so to check whether the person is owner of post
         const postObject = await Post.findSingleById(req.params.id, req.visitorId);
+        console.log(postObject)
         //we get array as a result of aggregrate operation
         if (postObject.length)
             res.render('single-post-screen', { post: postObject[0] });
@@ -119,4 +120,10 @@ exports.search = function (req, res) {
         console.log(err);
         res.json([])
     });
+}
+
+exports.like = function (req, res) {
+    console.log(req.session.user)
+    console.log(req.body)
+    Post.like(req.body.whichpost, req.body.like, req.session.user._id)
 }

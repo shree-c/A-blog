@@ -1,4 +1,5 @@
 const postsCollection = require('../db').db('complexapp').collection('posts');
+const likesCollection = require('../db').db('complexapp').collection('likes')
 const { ObjectId } = require('mongodb');
 const User = require('./User');
 //for sanitizing html
@@ -69,6 +70,14 @@ Post.commonAggrigate = async function (uniqArrayOps, visitorId, finalops = []) {
                 as: 'authorDocument'
             }
         },
+        {
+            $lookup: {
+                from: 'likes',
+                localField: '_id',
+                foreignField: 'postId',
+                as: 'likestats'
+            }
+        },
         // to project the required data
         {
             $project: {
@@ -79,6 +88,19 @@ Post.commonAggrigate = async function (uniqArrayOps, visitorId, finalops = []) {
                 authorId: "$author",
                 author: {
                     $arrayElemAt: ["$authorDocument", 0]
+                },
+                likeCount: {
+                    $size: "$likestats"
+                },
+                hasliked: {
+                    '$filter': {
+                        'input': '$likestats',
+                        'cond': {
+                            '$eq': [
+                                '$$this.authorId', new ObjectId(visitorId)
+                            ]
+                        }
+                    }
                 }
             }
         }
@@ -87,6 +109,7 @@ Post.commonAggrigate = async function (uniqArrayOps, visitorId, finalops = []) {
     posts = posts.map(function (post) {
         post.isVisitorOwner = post.authorId.equals(visitorId);
         post.authorId = undefined;
+        post.hasliked = post.hasliked.length > 0
         post.author = {
             username: post.author.username,
             avatar: new User(post.author, true).avatar
@@ -208,9 +231,24 @@ Post.getFollowingPosts = function (id) {
             const followingarrid = followingarr.map((arr) => {
                 return arr.userid
             })
-            const postsArr = await Post.commonAggrigate([{$match :{ author: { $in: followingarrid } }}], null, [])
+            const postsArr = await Post.commonAggrigate([{ $match: { author: { $in: followingarrid } } }], null, [{ $sort: { createdDate: -1 } }])
+            console.log(postsArr)
             resolve(postsArr);
         })
     })
+}
+//liking a post
+Post.like = async function (postId, like, authorId) {
+    if (like) {
+        await likesCollection.insertOne({
+            authorId: new ObjectId(authorId),
+            postId: new ObjectId(postId)
+        })
+    } else {
+        await likesCollection.deleteOne({
+            authorId: new ObjectId(authorId),
+            postId: new ObjectId(postId)
+        })
+    }
 }
 module.exports = Post;

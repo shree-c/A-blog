@@ -28,4 +28,5 @@ router.post('/search', postController.search);
 //following
 router.post('/addFollow/:username', userController.mustBeLoggedIn, followController.addFollow);
 router.post('/removeFollow/:username', userController.mustBeLoggedIn, followController.removeFollow);
+router.post('/like', postController.like)
 module.exports = router;
