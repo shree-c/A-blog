@@ -19,7 +19,7 @@ const app = express();
 
 //session config
 const sessionOpts = session({
-    secret: 'some secret',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     //storing session info in database
     store: mongoStore.create({
@@ -45,15 +45,17 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 // setting up a local object for every ejsfile to access
-app.use((req, res, next)=>{
+app.use((req, res, next) => {
+    console.log(req.method, req.url);
     //make markdown content available within templates
-    res.locals.filterUserHtml = function(content) {
-        return sanitizehtml(marked(content), {allowedTags: ['p', 'br', 'ul', 'li', 'strong', 'ol', 'i', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'], allowedAttributes: {}});
-    }
+    res.locals.filterUserHtml = function (content) {
+        return sanitizehtml(marked(content), { allowedTags: ['p', 'br', 'ul', 'li', 'strong', 'ol', 'i', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'], allowedAttributes: {} });
+    };
     //make all error and success flash messages available from all templates
-    res.locals.errors  = req.flash('errors');
+    res.locals.errors = req.flash('errors');
     res.locals.success = req.flash('success');
     //making new variable named visitor id to check whether he is logged in or he is guest
+    // console.log(req.session);
     req.visitorId = req.session.user ? req.session.user._id : 0;
     //making sessions object available globally on ejs template
     res.locals.user = req.session.user;

@@ -1,9 +1,9 @@
 const dotenv = require('dotenv');
 dotenv.config();
 // we are using the new mongodb syntax here
-const {MongoClient} = require('mongodb');
+const { MongoClient } = require('mongodb');
 const connectionString = global.process.env.DBCONSTR;
-const client  = new MongoClient(connectionString);
+const client = new MongoClient(connectionString);
 
 
 
@@ -14,8 +14,8 @@ async function run() {
         // only exporting client here
         module.exports = client;
         const app = require('./app');
-        app.listen(global.process.env.PORT, ()=>{
-            console.log('listining at 5000');
+        app.listen(global.process.env.PORT, () => {
+            console.log(`connected to db\nlistining at port ${process.env.PORT}`);
         });
     } catch (err) {
         console.log(err);

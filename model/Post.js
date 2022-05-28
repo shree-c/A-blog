@@ -85,15 +85,15 @@ Post.commonAggrigate = async function (uniqArrayOps, visitorId, finalops = []) {
     let posts = await postsCollection.aggregate(concatinatedOps).toArray();
     posts = posts.map(function (post) {
         post.isVisitorOwner = post.authorId.equals(visitorId);
-        post.authorId = undefined;
+        post.authorId = post.author._id;
         post.author = {
             username: post.author.username,
             avatar: new User(post.author, true).avatar
-        }
+        };
         return post;
-    })
+    });
     return posts;
-}
+};
 Post.findSingleById = function (postid, visitorId) {
     //finding the post by id
     if (typeof (postid) == 'string' && ObjectId.isValid(postid)) {
@@ -103,8 +103,8 @@ Post.findSingleById = function (postid, visitorId) {
             }
         }], visitorId);
     } else
-        throw new Error('not a valid id')
-}
+        throw new Error('not a valid id');
+};
 //pulling in posts for single profile screen
 Post.findByAuthorId = function (authorId) {
     return this.commonAggrigate([
@@ -114,8 +114,8 @@ Post.findByAuthorId = function (authorId) {
             }
         },
         { $sort: { createdDate: -1 } }
-    ])
-}
+    ]);
+};
 //actually updating post details called from update
 Post.prototype.actuallyUpdate = function () {
     return new Promise(async (resolve, reject) => {
@@ -123,13 +123,13 @@ Post.prototype.actuallyUpdate = function () {
         this.validate();
         if (!this.errors.length) {
             await
-                postsCollection.findOneAndUpdate({ _id: new ObjectId(this.requestedPostId) }, { $set: { title: this.data.title, body: this.data.body } })
+                postsCollection.findOneAndUpdate({ _id: new ObjectId(this.requestedPostId) }, { $set: { title: this.data.title, body: this.data.body } });
             resolve('success');
         } else {
-            resolve('failure')
+            resolve('failure');
         }
-    })
-}
+    });
+};
 //updating the post
 Post.prototype.update = function () {
     return new Promise(async (resolve, reject) => {
@@ -140,13 +140,13 @@ Post.prototype.update = function () {
                 let status = await this.actuallyUpdate();
                 resolve(status);
             }
-            this.errors.push('you do not have permission to edit this post')
+            this.errors.push('you do not have permission to edit this post');
             reject('failure');
         } catch (error) {
             reject();
         }
-    })
-}
+    });
+};
 //for deleting a post
 Post.delete = function (postid, visitorid) {
     return new Promise(async (resolve, reject) => {
@@ -161,10 +161,10 @@ Post.delete = function (postid, visitorid) {
                 }
             }
         } catch (error) {
-            reject(error)
+            reject(error);
         }
-    })
-}
+    });
+};
 
 Post.search = function (searchTerm) {
     return new Promise(async (resolve, reject) => {
@@ -181,8 +181,8 @@ Post.search = function (searchTerm) {
                 ], undefined, [{
                     $sort: { score: { $meta: 'textScore' } },
                 }
-                ])
-                resolve(posts)
+                ]);
+                resolve(posts);
 
             } catch (error) {
                 reject(error);
@@ -191,6 +191,6 @@ Post.search = function (searchTerm) {
             reject();
         }
 
-    })
-}
+    });
+};
 module.exports = Post;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import dompurify from 'dompurify'
+import dompurify from 'dompurify';
 export default class Search {
   //constructor: select dom elements and keep track of useful data
   constructor() {
@@ -20,12 +20,12 @@ export default class Search {
     this.inputField.addEventListener('keyup', () => {
       //showing loader icon as soon as keys are pressed in search bar
       this.keyPressHandler();
-    })
+    });
     this.closeIcon.addEventListener('click', () => this.closeOverlay());
     this.headerSearchIcon.addEventListener('click', (e) => {
       e.preventDefault();
       this.openOverlay();
-    })
+    });
   }
   openOverlay() {
     this.overlay.classList.add('search-overlay--visible');
@@ -74,29 +74,30 @@ export default class Search {
     }).then((val) => {
       this.renderResultsHtml(val.data);
     }).catch(() => {
+      console.log('failed!!!');
       // alert('hello failed');
-    })
+    });
   }
   renderResultsHtml(posts) {
     if (posts.length) {
       this.searchResults.innerHTML = dompurify.sanitize(`<div class="list-group shadow-sm">
-            <div class="list-group-item active"><strong>Search Results</strong> (${posts.length} item${(posts.length>1?'s':'')} found)</div>
-            ${
-              posts.map((posts)=>{
-                return `<a href="/post/${posts._id}" class="list-group-item list-group-item-action">
+            <div class="list-group-item active"><strong>Search Results</strong> (${posts.length} item${(posts.length > 1 ? 's' : '')} found)</div>
+            ${posts.map((posts) => {
+        return `<a href="/post/${posts._id}" class="list-group-item list-group-item-action">
               <img class="avatar-tiny" src="${posts.author.avatar}"> <strong>${posts.title}</strong>
               <span class="text-muted small">by ${posts.author.username} on ${new Date(posts.createdDate).toLocaleDateString()}</span>
-            </a>`
-              }).join('')
-            }
+            </a>`;
+      }).join('')
+        }
           </div>
 `);
     } else {
-      this.searchResults.innerHTML = `<p class="text-center alert alert-danger shadow-minimal"> No search results. </p>`
+      this.searchResults.innerHTML = `<p class="text-center alert alert-danger shadow-minimal"> No search results. </p>`;
     }
     this.hideLoaderIcon();
     this.showResultsArea();
   }
+  //for putting up search overlay
   injectHtml() {
     document.body.insertAdjacentHTML('beforeend', `<div class="search-overlay">
     <div class="search-overlay-top shadow-sm">
@@ -115,6 +116,6 @@ export default class Search {
     </div>
   </div>
   <!-- search feature end -->
-`)
+`);
   }
 }
