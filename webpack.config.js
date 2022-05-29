@@ -1,5 +1,5 @@
-const path = require('path')
-const webpack = require('webpack')
+const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   entry: './frontend-js/main.js',
@@ -22,4 +22,4 @@ module.exports = {
       }
     ]
   }
-}
+};

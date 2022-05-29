@@ -1,5 +1,5 @@
 const postsCollection = require('../db').db('complexapp').collection('posts');
-const likesCollection = require('../db').db('complexapp').collection('likes')
+const likesCollection = require('../db').db('complexapp').collection('likes');
 const { ObjectId } = require('mongodb');
 const User = require('./User');
 //for sanitizing html
@@ -108,16 +108,16 @@ Post.commonAggrigate = async function (uniqArrayOps, visitorId, finalops = []) {
     let posts = await postsCollection.aggregate(concatinatedOps).toArray();
     posts = posts.map(function (post) {
         post.isVisitorOwner = post.authorId.equals(visitorId);
-        post.authorId = undefined;
-        post.hasliked = post.hasliked.length > 0
+        post.authorId = post.authorId;
+        post.hasliked = post.hasliked.length > 0;
         post.author = {
             username: post.author.username,
             avatar: new User(post.author, true).avatar
-        }
+        };
         return post;
-    })
+    });
     return posts;
-}
+};
 Post.findSingleById = function (postid, visitorId) {
     //finding the post by id
     if (typeof (postid) == 'string' && ObjectId.isValid(postid)) {
@@ -127,8 +127,8 @@ Post.findSingleById = function (postid, visitorId) {
             }
         }], visitorId);
     } else
-        throw new Error('not a valid id')
-}
+        throw new Error('not a valid id');
+};
 //pulling in posts for single profile screen
 Post.findByAuthorId = function (authorId) {
     return this.commonAggrigate([
@@ -138,8 +138,8 @@ Post.findByAuthorId = function (authorId) {
             }
         },
         { $sort: { createdDate: -1 } }
-    ])
-}
+    ]);
+};
 //actually updating post details called from update
 Post.prototype.actuallyUpdate = function () {
     return new Promise(async (resolve, reject) => {
@@ -147,13 +147,13 @@ Post.prototype.actuallyUpdate = function () {
         this.validate();
         if (!this.errors.length) {
             await
-                postsCollection.findOneAndUpdate({ _id: new ObjectId(this.requestedPostId) }, { $set: { title: this.data.title, body: this.data.body } })
+                postsCollection.findOneAndUpdate({ _id: new ObjectId(this.requestedPostId) }, { $set: { title: this.data.title, body: this.data.body } });
             resolve('success');
         } else {
-            resolve('failure')
+            resolve('failure');
         }
-    })
-}
+    });
+};
 //updating the post
 Post.prototype.update = function () {
     return new Promise(async (resolve, reject) => {
@@ -164,13 +164,13 @@ Post.prototype.update = function () {
                 let status = await this.actuallyUpdate();
                 resolve(status);
             }
-            this.errors.push('you do not have permission to edit this post')
+            this.errors.push('you do not have permission to edit this post');
             reject('failure');
         } catch (error) {
             reject();
         }
-    })
-}
+    });
+};
 //for deleting a post
 Post.delete = function (postid, visitorid) {
     return new Promise(async (resolve, reject) => {
@@ -185,10 +185,10 @@ Post.delete = function (postid, visitorid) {
                 }
             }
         } catch (error) {
-            reject(error)
+            reject(error);
         }
-    })
-}
+    });
+};
 
 Post.search = function (searchTerm) {
     return new Promise(async (resolve, reject) => {
@@ -205,8 +205,8 @@ Post.search = function (searchTerm) {
                 ], undefined, [{
                     $sort: { score: { $meta: 'textScore' } },
                 }
-                ])
-                resolve(posts)
+                ]);
+                resolve(posts);
 
             } catch (error) {
                 reject(error);
@@ -215,40 +215,40 @@ Post.search = function (searchTerm) {
             reject();
         }
 
-    })
-}
+    });
+};
 
 
 //getting post numbers
 Post.getNum = async function (id) {
-    return (await postsCollection.find({ author: new ObjectId(id) }).toArray()).length
-}
+    return (await postsCollection.find({ author: new ObjectId(id) }).toArray()).length;
+};
 
 //getting posts for dashboard
 Post.getFollowingPosts = function (id) {
     return new Promise((resolve, reject) => {
         Follow.getFollowingById(id).then(async (followingarr) => {
             const followingarrid = followingarr.map((arr) => {
-                return arr.userid
-            })
-            const postsArr = await Post.commonAggrigate([{ $match: { author: { $in: followingarrid } } }], null, [{ $sort: { createdDate: -1 } }])
-            console.log(postsArr)
+                return arr.userid;
+            });
+            const postsArr = await Post.commonAggrigate([{ $match: { author: { $in: followingarrid } } }], null, [{ $sort: { createdDate: -1 } }]);
+            console.log(postsArr);
             resolve(postsArr);
-        })
-    })
-}
+        });
+    });
+};
 //liking a post
 Post.like = async function (postId, like, authorId) {
     if (like) {
         await likesCollection.insertOne({
             authorId: new ObjectId(authorId),
             postId: new ObjectId(postId)
-        })
+        });
     } else {
         await likesCollection.deleteOne({
             authorId: new ObjectId(authorId),
             postId: new ObjectId(postId)
-        })
+        });
     }
-}
+};
 module.exports = Post;

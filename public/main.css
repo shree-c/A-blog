@@ -412,3 +412,53 @@ textarea.tall-textarea {
   text-decoration: none;
   color: inherit;
 }
+
+
+/*custom added*/
+.card-con {
+  margin: 20px auto;
+  background: #F5F5F5;
+  width : 100%;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  display: border-box;
+  border-radius: 10px;
+  overflow-x: hidden;
+}
+.card-sub .title {
+  font-size: 2.8rem;
+  font-weight: 50;
+  margin: 30px;
+}
+.h-svg {
+  margin-right :20px;
+  margin-left: 30px;
+}
+.time-stamp {
+  font-weight: 300;
+  font-size: 0.8rem;
+  margin: 30px;
+}
+.time-stamp span {
+  padding-right: 2px;
+}
+.heart {
+  display:flex;
+  align-items: center;
+}
+.h-svg svg {
+  width: 25px;
+  height: 25px;
+}
+
+.fillsvg {
+  fill: red;
+}
+
+@media only screen and (max-width: 500px) {
+  .card-sub .title {
+    font-size: 1.4rem;
+  }
+}

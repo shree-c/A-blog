@@ -1,6 +1,21 @@
 <div class="con">
-  <div class="like-button <% if (post.hasliked) {%> is-active <%}%>">
+  <script>
+    function likefun(but) {
+      const likeele = document.querySelector('#likecount');
+      if (but.classList.contains('is-active')) {
+        likeele.innerText = +likeele.innerText - 1;
+      } else {
+        likeele.innerText = +likeele.innerText + 1;
+      }
+      but.classList.toggle('is-active');
+    }
+  </script>
+  <div
+    class="like-button <% if (post.hasliked) {%> is-active <%}%>"
+    id="likebutton"
+    onclick="likefun(this)"
+  >
     <div class="heart"></div>
   </div>
-  <div class="likecoun"><%= post.likeCount%></div>
+  <div class="likecoun" id="likecount"><%= post.likeCount%></div>
 </div>
