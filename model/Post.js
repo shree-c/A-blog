@@ -232,7 +232,6 @@ Post.getFollowingPosts = function (id) {
                 return arr.userid;
             });
             const postsArr = await Post.commonAggrigate([{ $match: { author: { $in: followingarrid } } }], null, [{ $sort: { createdDate: -1 } }]);
-            console.log(postsArr);
             resolve(postsArr);
         });
     });

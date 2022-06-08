@@ -11,7 +11,7 @@ exports.home = function (req, res) {
         Post.getFollowingPosts(req.session.user._id).then((postsArr) => {
             res.render('home-dashboard', {
                 posts: postsArr
-            })
+            });
         }).catch();
     } else {
         //rendering the ejs file and display flash messages if there are any
@@ -101,19 +101,19 @@ exports.ifUserExists = function (req, res, next) {
     }).catch(function () {
         res.render('404');
     });
-}
+};
 
 //checking whether a user is following or unfollowing for showing follow buttons
 exports.sharedProfileData = async function (req, res, next) {
     let isFollowing = false;
     if (req.session.user) {
         isFollowing = await Follow.isVisistorFollowing(req.profileUser._id, req.visitorId);
-        req.followmetrics = await Follow.getFollowMetrics(req.profileUser._id)
-        req.postNums = await Post.getNum(req.profileUser._id)
+        req.followmetrics = await Follow.getFollowMetrics(req.profileUser._id);
+        req.postNums = await Post.getNum(req.profileUser._id);
     }
     req.isFollowing = isFollowing;
     next();
-}
+};
 
 exports.profilePostsScreen = async function (req, res) {
     //pulling in all the posts
@@ -127,14 +127,15 @@ exports.profilePostsScreen = async function (req, res) {
             followersnum: req.followmetrics.followednum,
             followingnum: req.followmetrics.followingnum,
             postsnum: req.postNums,
-            url: req.url
-        })
+            url: req.url,
+            title: `profile for ${req.profileUser.username}`
+        });
     } catch (err) {
         console.log(err);
         res.render('404');
     }
 
-}
+};
 //followers screen 
 exports.profileFollowersScreen = async function (req, res) {
     await Follow.getFollowersById(req.profileUser._id).then((followers) => {
@@ -146,13 +147,13 @@ exports.profileFollowersScreen = async function (req, res) {
             followersnum: req.followmetrics.followednum,
             followingnum: req.followmetrics.followingnum,
             postsnum: req.postNums,
-            url: req.url
-        })
+            url: req.url,
+        });
     }).catch((err) => {
-        res.render('404')
+        res.render('404');
     });
 
-}
+};
 //following screen
 exports.profileFollowingScreen = async function (req, res) {
     await Follow.getFollowingById(req.profileUser._id).then((following) => {
@@ -165,9 +166,9 @@ exports.profileFollowingScreen = async function (req, res) {
             followingnum: req.followmetrics.followingnum,
             postsnum: req.postNums,
             url: req.url
-        })
+        });
     }).catch((err) => {
-        console.log(err)
-        res.render('404')
+        console.log(err);
+        res.render('404');
     });
-}
+};

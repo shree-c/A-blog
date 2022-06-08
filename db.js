@@ -15,7 +15,7 @@ async function run() {
         module.exports = client;
         const app = require('./app');
         app.listen(global.process.env.PORT, ()=>{
-            console.log('listining at 5000');
+            console.log(`listining at ${process.env.PORT}`);
         });
     } catch (err) {
         console.log(err);

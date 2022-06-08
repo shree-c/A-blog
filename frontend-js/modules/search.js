@@ -74,7 +74,7 @@ export default class Search {
     }).then((val) => {
       this.renderResultsHtml(val.data);
     }).catch(() => {
-      console.log('failed!!!');
+      console.log('failure to make requests');
       // alert('hello failed');
     });
   }
@@ -120,6 +120,7 @@ export default class Search {
 }
 
 //like button
+//run this only if the button exist
 const but = document.querySelector('#likebutton');
 but && but.addEventListener("click", (e) => {
   axios.post('/like', {

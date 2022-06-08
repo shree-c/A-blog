@@ -45,13 +45,14 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 // setting up a local object for every ejsfile to access
-app.use((req, res, next)=>{
+app.use((req, res, next) => {
     //make markdown content available within templates
-    res.locals.filterUserHtml = function(content) {
-        return sanitizehtml(marked(content), {allowedTags: ['p', 'br', 'ul', 'li', 'strong', 'ol', 'i', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'], allowedAttributes: {}});
-    }
+    console.log(req.url);
+    res.locals.filterUserHtml = function (content) {
+        return sanitizehtml(marked(content), { allowedTags: ['p', 'br', 'ul', 'li', 'strong', 'ol', 'i', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'], allowedAttributes: {} });
+    };
     //make all error and success flash messages available from all templates
-    res.locals.errors  = req.flash('errors');
+    res.locals.errors = req.flash('errors');
     res.locals.success = req.flash('success');
     //making new variable named visitor id to check whether he is logged in or he is guest
     req.visitorId = req.session.user ? req.session.user._id : 0;
@@ -60,6 +61,32 @@ app.use((req, res, next)=>{
     next();
 });
 app.use(router);
-
+//setup for websockets
+const server = require('http').createServer(app);
+//bringing in socketio
+const io = require('socket.io')(server);
+io.use(function (socket, next) {
+    sessionOpts(socket.request, socket.request.res, next);
+});
+io.on('connection', function (socket) {
+    let user = socket.request.session.user;
+    if (user) {
+        socket.emit('welcome', {
+            username: user.username,
+            avatar: user.avatar,
+        });
+        socket.on('chat-message-from-browser', function (data) {
+            //broadcasting message to other connected users this doesn't include the one who sent the message
+            socket.broadcast.emit('chat-message-from-server', {
+                message: sanitizehtml(data.message, {
+                    allowedTags: [],
+                    allowedAttributes: {}
+                }),
+                username: user.username,
+                avatar: user.avatar
+            });
+        });
+    }
+});
 //we are exporting app so that to start listining after we are connected to database
-module.exports = app;
+module.exports = server;
