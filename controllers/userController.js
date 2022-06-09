@@ -172,3 +172,13 @@ exports.profileFollowingScreen = async function (req, res) {
         res.render('404');
     });
 };
+
+//checks whether username exist
+exports.doesUsernameExist = async function (req, res) {
+    console.log('heeee');
+    await User.findByUsername(req.body.username).then(() => {
+        res.json(true);
+    }).catch(() => {
+        res.json(false);
+    });
+};

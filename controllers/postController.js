@@ -1,6 +1,5 @@
 //pulling Post model
 const Post = require('../model/Post');
-const { post } = require('../router');
 //we are going to export post related functions that are going to be used in router
 
 exports.viewCreateScreen = function (req, res) {
