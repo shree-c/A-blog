@@ -107,18 +107,38 @@ User.findByUsername = function (username) {
         }
         userCollection.findOne({ username: username }).then(function (userObject) {
             if (userObject) {
-                userObject = new User(userObject, true)
+                userObject = new User(userObject, true);
                 userObject = {
                     _id: userObject.data._id,
                     username: userObject.data.username,
                     avatar: userObject.avatar
-                }
+                };
                 resolve(userObject);
+            } else {
+                reject();
             }
         }).catch(function () {
             reject();
-        })
-    })
-}
+        });
+    });
+};
+
+User.findByEmail = function (email) {
+    return new Promise(function (resolve, reject) {
+        if (typeof (email) !== 'string') {
+            reject();
+            return;
+        }
+        userCollection.findOne({ email }).then((val) => {
+            if (val) {
+                resolve();
+            } else {
+                reject();
+            }
+        }).catch(() => {
+            reject();
+        });
+    });
+};
 
 module.exports = User;

@@ -175,8 +175,15 @@ exports.profileFollowingScreen = async function (req, res) {
 
 //checks whether username exist
 exports.doesUsernameExist = async function (req, res) {
-    console.log('heeee');
     await User.findByUsername(req.body.username).then(() => {
+        res.json(true);
+    }).catch(() => {
+        res.json(false);
+    });
+};
+//checks whether email exist
+exports.doesEmailExist = async function (req, res) {
+    await User.findByEmail(req.body.email).then(() => {
         res.json(true);
     }).catch(() => {
         res.json(false);
