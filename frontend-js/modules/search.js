@@ -12,6 +12,7 @@ export default class Search {
     this.loaderIcon = document.querySelector('.circle-loader');
     this.typingWaitTimer;
     this.previourValue = '';
+    this._csrf = document.querySelector('[name="_csrf"]').value;
     this.events();
   }
   //events: to be called from constructor 
@@ -70,7 +71,8 @@ export default class Search {
   }
   sendRequest() {
     axios.post('/search', {
-      searchTerm: this.inputField.value
+      searchTerm: this.inputField.value,
+      _csrf: this._csrf
     }).then((val) => {
       this.renderResultsHtml(val.data);
     }).catch(() => {

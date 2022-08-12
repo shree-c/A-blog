@@ -1,54 +1,45 @@
 <h2><img class="avatar-small" src="<%=profileavatar%>">
-  <%=profileusername%>
+   <%=profileusername%>
 
-  <%   if (user) { 
-        if (isFollowing) {
-  %>
-          <form class="ml-2 d-inline" action="/removeFollow/<%=profileusername%>" method="POST">
-          <% if (user.username !== profileusername) {  %>  
-          <button class="btn btn-danger btn-sm">Stop Following <i class="fas fa-user-times"></i></button>
-          </form>
-        <% }
-      } else { %>
+      <% if (user) { if (isFollowing) { %>
+         <form class="ml-2 d-inline" action="/removeFollow/<%=profileusername%>" method="POST">
+            <% if (user.username !==profileusername) { %>
+               <button class="btn btn-danger btn-sm">Stop Following <i class="fas fa-user-times"></i></button>
+               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+         </form>
+         <% } } else { %>
 
-          <form class="ml-2 d-inline" action="/addFollow/<%=profileusername%>" method="POST">
-        <% if (user.username !== profileusername) {  %>    
-          <button class="btn btn-primary btn-sm">Follow <i class="fas fa-user-plus"></i></button>
-          </form>
-    <% }
-   }
- }%>
- </h2>
+            <form class="ml-2 d-inline" action="/addFollow/<%=profileusername%>" method="POST">
+               <% if (user.username !==profileusername) { %>
+                  <button class="btn btn-primary btn-sm">Follow <i class="fas fa-user-plus"></i></button>
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            </form>
+            <% } } }%>
+</h2>
 
- <div class="profile-nav nav nav-tabs pt-2 mb-4">
+<div class="profile-nav nav nav-tabs pt-2 mb-4">
 
 
 
-  <% if (new RegExp(`\/${profileusername}$`).test(url)) {%>
-      <a href="/profile/<%= profileusername %>" class="profile-nav-link nav-item nav-link active">Posts: <%= postsnum %> </a>
-   <%} else {%>
-      <a href="/profile/<%= profileusername %>" class="profile-nav-link nav-item nav-link">Posts  <%= postsnum %></a>
-   <%}
+   <% if (new RegExp(`\/${profileusername}$`).test(url)) {%>
+      <a href="/profile/<%= profileusername %>" class="profile-nav-link nav-item nav-link active">Posts: <%= postsnum %>
+      </a>
+      <%} else {%>
+         <a href="/profile/<%= profileusername %>" class="profile-nav-link nav-item nav-link">Posts <%= postsnum %></a>
+         <%} if (new RegExp('\/followers$').test(url)) { %>
+            <a href="/profile/<%= profileusername %>/followers"
+               class="profile-nav-link nav-item nav-link active ">Followers: <%= followersnum %> </a>
+            <%} else {%>
+               <a href="/profile/<%= profileusername %>/followers"
+                  class="profile-nav-link nav-item nav-link  ">Followers: <%= followersnum %></a>
+               <%} if (new RegExp('\/following$').test(url)) { %>
+                  <a href="/profile/<%= profileusername %>/following"
+                     class="profile-nav-link nav-item nav-link active">Following: <%= followingnum %></a>
+                  <%} else {%>
+                     <a href="/profile/<%= profileusername %>/following"
+                        class="profile-nav-link nav-item nav-link ">Following: <%= followingnum %></a>
+                     <% } %>
 
 
 
-      if (new RegExp('\/followers$').test(url)) {
-   %>
-      <a href="/profile/<%= profileusername %>/followers" class="profile-nav-link nav-item nav-link active ">Followers: <%= followersnum %> </a>
-   <%} else {%>
-      <a href="/profile/<%= profileusername %>/followers" class="profile-nav-link nav-item nav-link  ">Followers:  <%= followersnum %></a>
-  <%}
-
-
-
-      if (new RegExp('\/following$').test(url)) {
-   %>
-      <a href="/profile/<%= profileusername %>/following" class="profile-nav-link nav-item nav-link active">Following: <%= followingnum %></a>
-   <%} else {%>
-      <a href="/profile/<%= profileusername %>/following" class="profile-nav-link nav-item nav-link ">Following: <%= followingnum %></a>
-      <% } %>
-
-
-
- </div>
-
+</div>

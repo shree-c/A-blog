@@ -1,4 +1,6 @@
 // pulling up db connection for mongo store
+const dotenv = require('dotenv');
+dotenv.config();
 const client = require('./db');
 // express server
 const express = require('express');
@@ -16,6 +18,8 @@ const sanitizehtml = require('sanitize-html');
 const flash = require('connect-flash');
 //creating express app
 const app = express();
+//for csrf protection
+const csrf = require('csurf');
 
 //session config
 const sessionOpts = session({
@@ -44,6 +48,7 @@ app.set('view engine', 'ejs');
 // setting up for parsing posted data
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(csrf());
 // setting up a local object for every ejsfile to access
 app.use((req, res, next) => {
     //make markdown content available within templates
@@ -54,11 +59,21 @@ app.use((req, res, next) => {
     //make all error and success flash messages available from all templates
     res.locals.errors = req.flash('errors');
     res.locals.success = req.flash('success');
+    res.locals.appname = process.env.APP_NAME || 'application_name';
+    res.locals.csrfToken = req.csrfToken();
     //making new variable named visitor id to check whether he is logged in or he is guest
     req.visitorId = req.session.user ? req.session.user._id : 0;
     //making sessions object available globally on ejs template
     res.locals.user = req.session.user;
     next();
+});
+app.use(function (err, req, res, next) {
+    if (err.code === 'EBADCSRFTOKEN') {
+        req.flash('errors', 'csrf detected');
+        req.session.save(() => res.redirect('/'));
+    } else {
+        res.render('404');
+    }
 });
 app.use(router);
 //setup for websockets

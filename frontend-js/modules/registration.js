@@ -14,6 +14,7 @@ export default class RegistrationForm {
         this.insertValidataionElements();
         this.events();
         this.delay = 800;
+        this._csrf = document.querySelector('[name="_csrf"]').value;
     }
     //events
     events() {
@@ -69,10 +70,10 @@ export default class RegistrationForm {
     //immediate functions
     usernameImmediate() {
         if (this.username.value && !/^([a-zA-z0-9]+)$/.test(this.username.value)) {
-            this.showValidationError(this.username, 'no special characters');
+            this.showValidationError(this.username, 'No special characters');
         }
         if (this.username.value.length > 30) {
-            this.showValidationError(this.username, 'username should be less than 30 characters');
+            this.showValidationError(this.username, 'Username should be less than 30 characters');
         }
         //if there are no errors
         if (!this.username.errors) {
@@ -81,12 +82,12 @@ export default class RegistrationForm {
     }
     emailImmediate() {
         if (!this.email.value) {
-            this.showValidationError(this.email, 'email cant be empty');
+            this.showValidationError(this.email, `You should provide an email`);
         }
     }
     passwordImmediate() {
         if (this.password.value && this.password > 40) {
-            this.showValidationError(this.password, 'password should contain less than 40 characters');
+            this.showValidationError(this.password, 'Password should contain less than 40 characters');
         }
         if (!this.errors) {
             this.hideValidateionError(this.password);
@@ -96,12 +97,12 @@ export default class RegistrationForm {
     usernameDelay() {
         //there is no need of hiding message here coz it is done in usernameImmediate() each time there is change
         if (this.username.value.length < 3) {
-            this.showValidationError(this.username, 'username should be atleast 3 characters');
+            this.showValidationError(this.username, 'Username should be atleast 3 characters');
         }
         if (!this.username.errors) {
-            axios.post('/doesUsernameExist', { username: this.username.value }).then((res) => {
+            axios.post('/doesUsernameExist', { username: this.username.value, _csrf: this._csrf }).then((res) => {
                 if (res.data) {
-                    this.showValidationError(this.username, 'username taken');
+                    this.showValidationError(this.username, 'Username taken');
                     this.username.isUnique = false;
                 } else {
                     this.username.isUnique = true;
@@ -113,12 +114,12 @@ export default class RegistrationForm {
     }
     emailDelay() {
         if (this.email.value && !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(this.email.value)) {
-            this.showValidationError(this.email, 'enter valid email address');
+            this.showValidationError(this.email, 'Enter valid email address');
         }
         if (!this.email.errors) {
-            axios.post('/doesEmailExist', { email: this.email.value }).then((res) => {
+            axios.post('/doesEmailExist', { email: this.email.value, _csrf: this._csrf }).then((res) => {
                 if (res.data) {
-                    this.showValidationError(this.email, 'email already taken');
+                    this.showValidationError(this.email, 'Email already taken');
                     this.email.isUnique = false;
                 } else {
                     this.email.isUnique = true;
@@ -133,7 +134,7 @@ export default class RegistrationForm {
     }
     passwordDelay() {
         if (this.password.value.length < 6 || this.password.value.length > 40) {
-            this.showValidationError(this.password, 'password should be between 3 & 40 characters');
+            this.showValidationError(this.password, 'Password should be between 3 & 40 characters');
         }
         if (!this.password.errors) {
             this.hideValidateionError(this.password);
@@ -149,7 +150,6 @@ export default class RegistrationForm {
         el.errors = true;
     }
     insertValidataionElements() {
-        console.log(this.allFields.length);
         this.allFields.forEach((el) => {
             el.insertAdjacentHTML('afterend', `
             <div class="alert alert-danger small liveValidateMessage "></div>
