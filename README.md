@@ -1,4 +1,5 @@
-# a blogging website
+# a blogging website:computer:
+![front-page](/public/assets/frontpage.png)
 
 - can have an account and write articles
 - can search articles written by other people
