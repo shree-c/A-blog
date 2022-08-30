@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "watch": "nodemon --trace-warnings db --ignore frontend-js --ignore public/ & webpack --watch",
+    "start": "node db.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "husky install"
   },

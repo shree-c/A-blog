@@ -1,4 +1,5 @@
-# a blogging website:computer:
+# a blogging website:computer
+
 ![front-page](/public/assets/frontpage.png)
 
 - can have an account and write articles
@@ -15,7 +16,9 @@
   `npm i`
 - create a file named .env inside the root folder of repo
 - the app uses following env variables
+- Create a file called .env inside the root and put these env variables
   - **DBCONSTR** -> connection url to your mongodb database instance
   - **PORT** -> port to listen
   - **SESSION_SECRET** -> can be assigned to any unpredictable string
-  - run `npm run watch`
+  - **APP_NAME** -> any string for app name
+  - run `npm run start`
